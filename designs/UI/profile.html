@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+
+    <!-- link to google font -->
+    <link href="https://fonts.googleapis.com/css?family=Nosifer" rel="stylesheet">
+
+    <!--CSS used after user logs in -->
+    <link rel="stylesheet" type="text/css" href="logedin.css">
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-sm navbar-dark bg-dark" >
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarText">
+            <span class="navbar-text text-warning">
+              User's Name
+            </span>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row header">
+            <div class="col-12 align-self-center header-text">
+                <h1 class="text-center">Yummy Recipes</h1>
+            </div>
+        </div>
+
+        <div class="row" data-toggle="modal" data-target="#recipe">
+          <div class="col-2">
+            <img src="fish.jpg" class="img-fluid img-thumbnail">
+          </div>
+          <div class="col-10">
+            <div class="row">
+              <div class="col-6">
+                <h3>Fish Masala</h3>
+              </div>
+              <div class="col-6">
+                <!--TODO: icon to edit and delete -->
+              </div>
+            </div>
+            <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque </p>
+          </div>
+        </div>
+    </div>
+    <!-- Modal to view recipe -->
+    <div class="modal fade" id="recipe" tabindex="-1" role="dialog" aria-labelledby="recipe" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Fish Masala</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <h4>Ingredients</h4>
+            <ul>
+              <li>
+                1/2 cup light corn syrup
+              </li>
+              <li>
+                1/3 cup vegetable oil
+              </li>
+              <li>
+                1 cup water
+              </li>
+              <li>
+                1/2 cup light corn syrup
+              </li>
+            </ul>
+            <h4>Directions</h4>
+            <ol>
+              <li>
+                Beat eggs and lemon juice in a bowl; stir in Parmesan cheese and bread crumbs to make a paste. Fold in tuna and onion until well-mixed. Season with black pepper. Shape tuna mixture into eight 1-inch-thick patties.
+              </li>
+              <li>
+                Heat vegetable oil in a skillet over medium heat; fry patties until golden brown, about 5 minutes per side.
+              </li>
+            </ol>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary">Save changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>
+  </body>
+</html>
