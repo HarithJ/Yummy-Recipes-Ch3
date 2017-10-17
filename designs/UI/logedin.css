@@ -1,0 +1,13 @@
+.header{
+    background-image: url("bg.jpg");
+    margin-bottom: 50px;
+    height: 8rem;
+}
+
+.header-text {
+    font-family: 'Nosifer', cursive;
+    color: #D2691E;
+    text-shadow: 2px 2px grey;
+    margin-left:12px;
+    z-index:1;
+}
