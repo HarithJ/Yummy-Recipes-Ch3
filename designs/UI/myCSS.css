@@ -1,6 +1,9 @@
+.mTop{
+    margin-top: 50px;
+}
+
 .header{
     background-image: url("bg.jpg");
-    margin-bottom: 50px;
 }
 
 .header-text {

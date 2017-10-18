@@ -15,27 +15,25 @@
     <script src="https://use.fontawesome.com/039e3bc5d2.js"></script>
 
     <!--CSS used after user logs in -->
-    <link rel="stylesheet" type="text/css" href="logedin.css">
+    <link rel="stylesheet" type="text/css" href="myCSS.css">
   </head>
   <body>
-    <nav class="navbar navbar-expand-sm navbar-dark bg-dark" >
+    <nav class="navbar navbar-expand-sm navbar-dark" style="background-color: #e3f2fd;">
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
         </button>
 
-        <div class="collapse navbar-collapse" id="navbarText">
-            <span class="navbar-text text-warning">
-              User's Name
+        <div class="collapse navbar-collapse justify-content-between align-items-center" id="navbarText">
+            <span class="navebar-text header-text">
+              <h5>Yummy Recipes</h5>
             </span>
-        </div>
+            <span class="navbar-text text-primary justify-content-center">
+              <p class="text-right">User's Name</p>
+            </span>
+          </div>
     </nav>
 
-    <div class="container-fluid">
-        <div class="row header">
-            <div class="col-12 align-self-center header-text">
-                <h1 class="text-center">Yummy Recipes</h1>
-            </div>
-        </div>
+    <div class="container-fluid mTop">
 
         <div class="row" data-toggle="modal" data-target="#recipe">
           <div class="col-2">
