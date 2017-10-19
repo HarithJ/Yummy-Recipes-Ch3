@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
 
     <!-- My CSS -->
-    <link rel="stylesheet" type="text/css" href="myCSS.css">
+    <link rel="stylesheet" type="text/css" href={{ url_for('static', filename='myCSS.css') }}>
 
 
     <!-- link to google font -->
@@ -27,7 +27,7 @@
                     <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="login.html">Login</a>
+                    <a class="nav-link" href="/login.html">Login</a>
                 </li>
             </ul>
         </div>
@@ -38,10 +38,10 @@
                 <h1 class="text-center">Yummy Recipes</h1>
             </div>
             <div class="col-3 header-img1">
-                <img src="recipe.jpg" class="img-fluid img-thumbnail" style="transform: rotate(20deg);">
+                <img src="{{ url_for('static', filename='recipe.jpg') }}" class="img-fluid img-thumbnail" style="transform: rotate(20deg);">
             </div>
             <div class="col-3 align-self-center header-img2">
-                <img src="food.jpg" class="img-fluid img-thumbnail text-right">
+                <img src="{{ url_for('static', filename='food.jpg') }}" class="img-fluid img-thumbnail text-right">
             </div>
         </div>
 
