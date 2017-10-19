@@ -11,3 +11,4 @@ How to view the website:
 3. After clicking the sign in button, the login page will direct you to the profile page where you, as the user, will be able to edit or delete a recipe.
 
 TravisCI Badge: https://travis-ci.org/HarithJ/Yummy-Recipes.svg?branch=master
+Coveralls badge: [![Coverage Status](https://coveralls.io/repos/github/HarithJ/Yummy-Recipes/badge.svg?branch=master)](https://coveralls.io/github/HarithJ/Yummy-Recipes?branch=master)
