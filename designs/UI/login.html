@@ -44,18 +44,18 @@
                 <img src="{{ url_for('static', filename='food.jpg') }}" class="img-fluid img-thumbnail text-right">
             </div>
         </div>
-
+    <h1>{{ value }}</h1>
     <div class="container-fluid mTop">
         <div class="row justify-content-center">
-            <form class="col-sm-6" action="https://harithj.github.io/Yummy-Recipes/designs/UI/profile.html?">
+            <form class="col-sm-6" action="/validate/" method="Post">
                 <h5 class="text-secondary">Sign in!!!</h5>
                 <div class="form-group">
                     <label for="inputEmail">Email address</label>
-                    <input type="email" class="form-control" id="inputEmail" aria-describedby="emailHelp" placeholder="Enter email">
+                    <input type="text" class="form-control" id="inputEmail" aria-describedby="emailHelp" placeholder="Enter email" name="name">
                 </div>
                 <div class="form-group">
                     <label for="inputPassword">Password</label>
-                    <input type="password" class="form-control" id="inputPassword" placeholder="Password">
+                    <input type="password" class="form-control" id="inputPassword" placeholder="Password" name="password">
                 </div>
                 <div class="row justify-content-end">
                     <div class="col-auto">

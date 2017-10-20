@@ -15,7 +15,7 @@
     <script src="https://use.fontawesome.com/039e3bc5d2.js"></script>
 
     <!--CSS used after user logs in -->
-    <link rel="stylesheet" type="text/css" href="myCSS.css">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='myCSS.css') }}">
   </head>
   <body>
     <nav class="navbar navbar-expand-sm navbar-dark" style="background-color: #e3f2fd;">
@@ -28,7 +28,7 @@
               <h5>Yummy Recipes</h5>
             </span>
             <span class="navbar-text text-primary justify-content-center">
-              <p class="text-right">User's Name</p>
+              <p class="text-right">Welcome {{ value }}</p>
             </span>
           </div>
     </nav>
@@ -37,7 +37,7 @@
 
         <div class="row" data-toggle="modal" data-target="#recipe">
           <div class="col-2">
-            <img src="fish.jpg" class="img-fluid img-thumbnail">
+            <img src="{{ url_for('static', filename='fish.jpg') }}" class="img-fluid img-thumbnail">
           </div>
           <div class="col-10">
             <div class="row">
