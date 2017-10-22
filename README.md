@@ -11,9 +11,9 @@ You can also clone the development branch and take the following steps to view t
 1. Move in the Yummy-Recipes directory: cd Yummy-Recipes
 2. Activate the virtualenv: source bin/activate
 3. From here you can use two ways:
-    1. Set the variable for flask: export FLASK_APP=webapp/app.py
-    2. Run flask: flask run
+        Set the variable for flask: export FLASK_APP=webapp/app.py
+        Run flask: flask run
     
-            OR JUST TYPE
+    OR JUST TYPE
             
-    1. gunicorn -w 4 webapp.app:app
+        gunicorn -w 4 webapp.app:app
