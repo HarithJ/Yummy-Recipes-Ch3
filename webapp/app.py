@@ -41,6 +41,8 @@ def login_page():
 @app.route('/profile.html/')
 def profile(ingredients = None):
     global current_user
+    if current_user == None:
+        return redirect(url_for('login_page'))
     return render_template("profile.html", recipes=current_user.recipes, user_name=current_user.name)
 
 @app.route('/register/', methods=['POST'])
@@ -76,6 +78,12 @@ def add_recipe():
 
     current_user.add_recipe(request.form['recipetitle'], ingredients, request.form['directions'])
     return redirect(url_for('profile'))
+
+@app.route('/logout/')
+def logout():
+    global current_user
+    current_user = None
+    return redirect(url_for('login_page'))
 
 if __name__== '__main__':
     app.run()
