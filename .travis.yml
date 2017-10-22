@@ -3,4 +3,4 @@ python:
     - nightly
 # command to run tests
 script:
-    - python -m unittest test.test_app
+    - python -m unittest test.test_webapp
