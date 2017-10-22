@@ -4,6 +4,8 @@ coveralls badge: <a href='https://coveralls.io/github/HarithJ/Yummy-Recipes?bran
 
 
 # Yummy-Recipes
+(please note: The below link is not working perfectly as it should)
+
 To view the webiste please visit: https://yummy-recipes-harith.herokuapp.com/
 
 You can also clone the development branch and take the following steps to view the website (this shud happen inside command-line prompt:
