@@ -1,4 +1,4 @@
-TravisCI Badge: https://travis-ci.org/HarithJ/Yummy-Recipes.svg?branch=master
+TravisCI Badge: ![alt text](https://travis-ci.org/HarithJ/Yummy-Recipes.svg?branch=development)
 
 # Yummy-Recipes
 Yummy recipes provides a platform for users to keep track of their awesome recipes and share with others if they so wish.
