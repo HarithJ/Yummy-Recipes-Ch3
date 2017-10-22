@@ -8,8 +8,14 @@ To view the webiste please visit: https://yummy-recipes-harith.herokuapp.com/
 
 You can also clone the development branch and take the following steps to view the website (this shud happen inside command-line prompt:
 
-1. Move in the Yummy-Recipes directory: cd Yummy-Recipes
-2. Activate the virtualenv: source bin/activate
+1. Move in the Yummy-Recipes directory: 
+
+        cd Yummy-Recipes
+        
+2. Activate the virtualenv: 
+
+        source bin/activate
+
 3. From here you can use two ways:
         
         Set the variable for flask: export FLASK_APP=webapp/app.py
