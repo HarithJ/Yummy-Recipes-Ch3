@@ -47,6 +47,7 @@ def profile(ingredients = None):
 
 @app.route('/register/', methods=['POST'])
 def register():
+    global users
     error = None
     # check if the password and ver password are not the same
     if request.form['password'] != request.form['verpassword']:
@@ -58,6 +59,7 @@ def register():
 
 @app.route('/validate/', methods=['POST'])
 def validate():
+    global users
     global current_user
     if request.form['name'] in users:
         if users[request.form['name']].is_valid(request.form['password']):
