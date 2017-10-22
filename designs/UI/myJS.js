@@ -6,7 +6,21 @@ function validateForm()
     var d=document.forms["regForm"]["verpassword"].value;
     if (a==null || a=="",b==null || b=="",c==null || c=="",d==null || d=="")
     {
-        document.getElementById("error").innerHTML = "Please Fill All Required Field";
+        alert("Please Fill All Required Field Marked With *");
         return false;
     }
 }
+
+$( document ).ready(function() {
+    var numForName = 2;
+    var name = "ingredient";
+
+
+    $("#ingredients").on("focus","input", function(){
+
+            $("#ingredients").append('<li><input type="text" name="' + name+numForName + '"></li>');
+            numForName += 1;
+
+    });
+
+});

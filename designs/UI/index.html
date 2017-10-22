@@ -54,30 +54,31 @@
         <form action="/register/" method="Post" name="regForm" onsubmit="return validateForm()">
 
             <div class="form-group row">
-                <label for="inputName" class="col-sm-2 col-form-label">Name</label>
+                <label for="inputName" class="col-sm-2 col-form-label">Name*</label>
                 <div class="col-sm-10">
                     <input type="text" class="form-control" id="inputName" placeholder="Full Name" name="name">
                 </div>
-            </div> <p id="error"></p>
+            </div>
             <div class="form-group row">
-                <label for="inputEmail" class="col-sm-2 col-form-label">Email address</label>
+                <label for="inputEmail" class="col-sm-2 col-form-label">Email address*</label>
                 <div class="col-sm-10">
                     <input type="email" class="form-control" id="inputEmail" aria-describedby="emailHelp" placeholder="Enter email" name="email">
                 </div>
                 <small id="emailHelp" class="form-text text-muted col-sm-6">We'll never share your email with anyone else.</small>
             </div>
             <div class="form-group row">
-                <label for="inputPassword" class="col-sm-2 col-form-label">Password</label>
+                <label for="inputPassword" class="col-sm-2 col-form-label">Password*</label>
                 <div class="col-sm-10">
                     <input type="password" class="form-control" id="inputPassword" placeholder="Password" name="password">
                 </div>
             </div>
             <div class="form-group row">
-                <label for="inputPassword2" class="col-sm-2 col-form-label">Verify Password</label>
+                <label for="inputPassword2" class="col-sm-2 col-form-label">Verify Password*</label>
                 <div class="col-sm-10">
                     <input type="password" class="form-control" id="inputPassword2" placeholder="Password" name="verpassword">
                 </div>
             </div>
+            <p id="passNoMatch"></p>
             <div class="form-group row">
                 <label for="aboutYou" class="col-sm-2 col-form-label">Tell us more about you</label>
                 <div class="col-sm-10">

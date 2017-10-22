@@ -5,6 +5,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='myJS.js') }}"></script>
+
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
 
@@ -28,21 +31,34 @@
               <h5>Yummy Recipes</h5>
             </span>
             <span class="navbar-text text-primary justify-content-center">
-              <p class="text-right">Welcome {{ value }}</p>
+              <p class="text-right">Welcome {{ user_name }}</p>
             </span>
-          </div>
+        </div>
     </nav>
 
     <div class="container-fluid mTop">
+        <!-- button for user to enable them add recipe -->
+        <a data-toggle="modal" data-target="#add-recipe">
+          <div class="row">
+            <div class="col-auto"><i class="fa fa-plus-circle fa-2x" aria-hidden="true"></i></div>
+            <div class="col-auto"><h5>Click To Add A Recipe</h5></div>
+          </div>
+        </a>
 
-        <div class="row" data-toggle="modal" data-target="#recipe">
+
+        {% for recipe in recipes %}
+        </br>
+        <div class="row">
+
           <div class="col-2">
             <img src="{{ url_for('static', filename='fish.jpg') }}" class="img-fluid img-thumbnail">
           </div>
+
           <div class="col-10">
+
             <div class="row">
               <div class="col-10">
-                <h3>Fish Masala</h3>
+                <h3>{{ recipe.title }}</h3>
               </div>
               <div class="col-1">
                 <i class="fa fa-pencil" aria-hidden="true"></i>
@@ -51,53 +67,74 @@
                 <i class="fa fa-trash-o" aria-hidden="true"></i>
               </div>
             </div>
-            <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque </p>
+
+            <div class="row">
+              <div class="col-sm-3">
+                <h5>Ingredients</h5>
+                <ul>
+                  {% for ingredient in recipe.ingredients %}
+                    <li>{{ ingredient }}</li>
+                  {% endfor %}
+                </ul>
+              </div>
+
+              <div class="col-sm-9">
+                <h5>Directions</h5>
+                <p>{{ recipe.directions }}</p>
+              </div>
+            </div>
+
+
+
           </div>
         </div>
+        {% endfor%}
     </div>
-    <!-- Modal to view recipe -->
-    <div class="modal fade" id="recipe" tabindex="-1" role="dialog" aria-labelledby="recipe" aria-hidden="true">
+
+    <!-- Modal to add recipe -->
+    <div class="modal fade" id="add-recipe" tabindex="-1" role="dialog" aria-labelledby="recipe" aria-hidden="true">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">Fish Masala</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <h4>Ingredients</h4>
-            <ul>
-              <li>
-                1/2 cup light corn syrup
-              </li>
-              <li>
-                1/3 cup vegetable oil
-              </li>
-              <li>
-                1 cup water
-              </li>
-              <li>
-                1/2 cup light corn syrup
-              </li>
-            </ul>
-            <h4>Directions</h4>
-            <ol>
-              <li>
-                Beat eggs and lemon juice in a bowl; stir in Parmesan cheese and bread crumbs to make a paste. Fold in tuna and onion until well-mixed. Season with black pepper. Shape tuna mixture into eight 1-inch-thick patties.
-              </li>
-              <li>
-                Heat vegetable oil in a skillet over medium heat; fry patties until golden brown, about 5 minutes per side.
-              </li>
-            </ol>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary">Save changes</button>
-          </div>
+
+            <form action="/addrecipe/" method="Post" name="addrecipeForm">
+
+              <div class="modal-header">
+                <input type="text" class="form-control" name="recipetitle" placeholder="Recipe Title">
+
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+
+              <div class="modal-body">
+
+                <h4>Ingredients</h4>
+                <ul id="ingredients">
+                  <li>
+                    <input type="text" name="ingredient1">
+                  </li>
+                </ul>
+
+                <h4>Directions</h4>
+                <div class="row">
+                  <div class="col-12">
+                    <textarea class="form-control" name="directions" rows="3"></textarea>
+                  </div>
+                </div>
+
+              </div>
+
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Save changes</button>
+              </div>
+            </form>
+
         </div>
       </div>
     </div>
+
+
 
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
