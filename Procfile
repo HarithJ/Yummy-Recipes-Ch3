@@ -1,1 +1,1 @@
-web: gunicorn app:webapp/app
+web: gunicorn app:'cd ./webapp/ && exec app'
