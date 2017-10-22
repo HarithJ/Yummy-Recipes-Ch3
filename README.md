@@ -1,5 +1,8 @@
 TravisCI Badge: ![alt text](https://travis-ci.org/HarithJ/Yummy-Recipes.svg?branch=development)
 
+coveralls badge: <a href='https://coveralls.io/github/HarithJ/Yummy-Recipes?branch=development'><img src='https://coveralls.io/repos/github/HarithJ/Yummy-Recipes/badge.svg?branch=development' alt='Coverage Status' /></a>
+
+
 # Yummy-Recipes
 Yummy recipes provides a platform for users to keep track of their awesome recipes and share with others if they so wish.
 
@@ -11,9 +14,6 @@ How to view the website:
 2. On top left corner there will be another link that, when clicked, will direct you to the login page.
 
 3. After clicking the sign in button, the login page will direct you to the profile page where you, as the user, will be able to edit or delete a recipe.
-
-
-Coveralls badge: <a href='https://coveralls.io/github/HarithJ/Yummy-Recipes?branch=master'><img src='https://coveralls.io/repos/github/HarithJ/Yummy-Recipes/badge.svg?branch=master' alt='Coverage Status' /></a>
 
 
 Code Climate badges:
