@@ -4,6 +4,6 @@ python:
 
 # command to run tests
 script:
-    - python -m unittest test.test_webapp
+    - nosetests
     - coveralls
 after_success: "coveralls"
