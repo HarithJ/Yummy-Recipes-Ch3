@@ -13,5 +13,7 @@ You can also clone the development branch and take the following steps to view t
 3. From here you can use two ways:
     1. Set the variable for flask: export FLASK_APP=webapp/app.py
     2. Run flask: flask run
-            OR
+    
+            OR JUST TYPE
+            
     1. gunicorn -w 4 webapp.app:app
