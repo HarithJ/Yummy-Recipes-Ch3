@@ -61,11 +61,13 @@ def register():
 def validate():
     global users
     global current_user
+    error = None
     if request.form['name'] in users:
         if users[request.form['name']].is_valid(request.form['password']):
             current_user = users[request.form['name']]
             return redirect(url_for('profile'))
 
+    flash("Incorrect Credentials Entered")
     return redirect(url_for('login_page'))
 
 @app.route('/addrecipe/', methods=['POST'])

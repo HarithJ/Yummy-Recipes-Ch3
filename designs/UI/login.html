@@ -44,8 +44,17 @@
                 <img src="{{ url_for('static', filename='food.jpg') }}" class="img-fluid img-thumbnail text-right">
             </div>
         </div>
-    <h1>{{ value }}</h1>
+
     <div class="container-fluid mTop">
+        <!-- Flash msg to show that incorrect credentials -->
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <p class="text-center text-danger">{{ message }}</p>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
         <div class="row justify-content-center">
             <form class="col-sm-6" action="/validate/" method="Post">
                 <h5 class="text-secondary">Sign in!!!</h5>
