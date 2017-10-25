@@ -36,7 +36,7 @@
 
     <div class="container-fluid mTop">
         <!-- button for user to enable them add recipe -->
-        <a data-toggle="modal" data-target="#add-recipe">
+        <a id="add-recipe">
           <div class="row">
             <div class="col-auto"><i class="fa fa-plus-circle fa-2x" aria-hidden="true"></i></div>
             <div class="col-auto"><h5>Click To Add A Recipe</h5></div>
@@ -44,9 +44,9 @@
         </a>
 
 
-        {% for recipe in recipes %}
+        {% for key, value in recipes.items() %}
         </br>
-        <div class="row">
+        <div class="row recipe">
 
           <div class="col-2">
             <img src="{{ url_for('static', filename='fish.jpg') }}" class="img-fluid img-thumbnail">
@@ -56,13 +56,13 @@
 
             <div class="row">
               <div class="col-10">
-                <h3>{{ recipe.title }}</h3>
+                <h3 class="recipetitle">{{ value.title }}</h3>
               </div>
               <div class="col-1">
-                <i class="fa fa-pencil" aria-hidden="true"></i>
+                <a class="edit"><i class="fa fa-pencil" aria-hidden="true"></i></a>
               </div>
               <div class="col-1">
-                <i class="fa fa-trash-o" aria-hidden="true"></i>
+                <a class="delete-recipe"><i class="fa fa-trash-o" aria-hidden="true"></i></a>
               </div>
             </div>
 
@@ -70,15 +70,15 @@
               <div class="col-sm-3">
                 <h5>Ingredients</h5>
                 <ul>
-                  {% for ingredient in recipe.ingredients %}
-                    <li>{{ ingredient }}</li>
+                  {% for ingredient in value.ingredients %}
+                    <li class={{ ["ingredient",loop.index]|join }}>{{ ingredient }}</li>
                   {% endfor %}
                 </ul>
               </div>
 
               <div class="col-sm-9">
                 <h5>Directions</h5>
-                <p>{{ recipe.directions }}</p>
+                <p class="directions">{{ value.directions }}</p>
               </div>
             </div>
 
@@ -88,16 +88,16 @@
         </div>
         {% endfor%}
     </div>
-
+<div id="form-goes-in-here"></div>
     <!-- Modal to add recipe -->
-    <div class="modal fade" id="add-recipe" tabindex="-1" role="dialog" aria-labelledby="recipe" aria-hidden="true">
-      <div class="modal-dialog" role="document">
+    <div class="modal fade" id="add-recipe-modal" tabindex="-1" role="dialog" aria-labelledby="recipe" aria-hidden="true">
+      <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
 
-            <form action="/addrecipe/" method="Post" name="addrecipeForm">
+            <form method="Post" name="addrecipeForm" id="add-recipe-modal-form">
 
               <div class="modal-header">
-                <input type="text" class="form-control" name="recipetitle" placeholder="Recipe Title">
+                <input type="text" class="form-control recipetitle" name="recipetitle" placeholder="Recipe Title">
 
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                   <span aria-hidden="true">&times;</span>
@@ -108,15 +108,15 @@
 
                 <h4>Ingredients</h4>
                 <ul id="ingredients">
-                  <li>
-                    <input type="text" name="ingredient1">
+                  <li id="last-ingredient-list">
+                    <input type="text" name="last-ingredient">
                   </li>
                 </ul>
 
                 <h4>Directions</h4>
                 <div class="row">
                   <div class="col-12">
-                    <textarea class="form-control" name="directions" rows="3"></textarea>
+                    <textarea class="form-control directions" name="directions" rows="3"></textarea>
                   </div>
                 </div>
 
@@ -131,8 +131,7 @@
         </div>
       </div>
     </div>
-
-
+    <!-- End modal-->
 
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS, then my JS -->

@@ -24,7 +24,13 @@ class User:
         return self.password == password
 
     def add_recipe(self, title, ingredients, directions):
-        self.recipes[Recipe(title, ingredients, directions)] = title
+        self.recipes[title] = Recipe(title, ingredients, directions)
+
+    def edit_recipe(self, prev_title, title, ingredients, directions):
+        self.recipes[prev_title] = Recipe(title, ingredients, directions)
+
+    def delete_recipe(self, recipe_title):
+        self.recipes.pop(recipe_title)
 
 users = {}
 current_user = None
@@ -72,15 +78,33 @@ def validate():
 
 @app.route('/addrecipe/', methods=['POST'])
 def add_recipe():
-    ingredient = request.form['ingredient1']
+    ingredient = None
     ingredients = []
     ingredient_num = 1
-    while ingredient != "":
+    while 'ingredient{}'.format(ingredient_num) in request.form:
+        ingredient = request.form['ingredient{}'.format(ingredient_num)]
         ingredients.append(ingredient)
         ingredient_num += 1
-        ingredient = request.form['ingredient{}'.format(ingredient_num)]
 
     current_user.add_recipe(request.form['recipetitle'], ingredients, request.form['directions'])
+    return redirect(url_for('profile'))
+
+@app.route('/editrecipe/<string:prev_title>', methods=['POST'])
+def edit_recipe(prev_title):
+    ingredient = None
+    ingredients = []
+    ingredient_num = 1
+    while 'ingredient{}'.format(ingredient_num) in request.form:
+        ingredient = request.form['ingredient{}'.format(ingredient_num)]
+        ingredients.append(ingredient)
+        ingredient_num += 1
+
+    current_user.edit_recipe(prev_title, request.form['recipetitle'], ingredients, request.form['directions'])
+    return redirect(url_for('profile'))
+
+@app.route('/deleterecipe/<string:recipe_title>')
+def delete_recipe(recipe_title):
+    current_user.delete_recipe(recipe_title)
     return redirect(url_for('profile'))
 
 @app.route('/logout/')
