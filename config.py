@@ -4,7 +4,7 @@ class Config(object):
     '''
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SECRET_KEY = 'development mode'
-    SQLALCHEMY_DATABASE_URI = 'postgresql://testuser:abc123@localhost:5432/testdb'
+    SQLALCHEMY_DATABASE_URI = 'postgres://hlugpiywpgwxnx:cb0b209e0de7b05ea3f8f9729b8883e0aee7d377c1f5e6baa5ccbe81067c1d66@ec2-54-225-94-143.compute-1.amazonaws.com:5432/dclmujdgvt0sbr'
 
 class DevelopmentConfig(Config):
     '''
