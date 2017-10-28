@@ -51,9 +51,21 @@
         <form action="/register/" method="Post" name="regForm" onsubmit="return validateForm()">
 
             <div class="form-group row">
-                <label for="inputName" class="col-sm-2 col-form-label">Name*</label>
+                <label for="inputFirstName" class="col-sm-2 col-form-label">First Name*</label>
                 <div class="col-sm-10">
-                    <input type="text" class="form-control" id="inputName" placeholder="Full Name" name="name">
+                    <input type="text" class="form-control" id="inputFirstName" placeholder="First Name" name="first_name">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="inputLastName" class="col-sm-2 col-form-label">Last Name*</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="inputLastName" placeholder="Last Name" name="last_name">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="inputUsername" class="col-sm-2 col-form-label">Username*</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="inputUserame" placeholder="User Name" name="username">
                 </div>
             </div>
             <div class="form-group row">
@@ -73,13 +85,6 @@
                 <label for="inputPassword2" class="col-sm-2 col-form-label">Verify Password*</label>
                 <div class="col-sm-10">
                     <input type="password" class="form-control" id="inputPassword2" placeholder="Password" name="verpassword">
-                </div>
-            </div>
-            <p id="passNoMatch"></p>
-            <div class="form-group row">
-                <label for="aboutYou" class="col-sm-2 col-form-label">Tell us more about you</label>
-                <div class="col-sm-10">
-                    <textarea class="form-control" id="aboutYou" rows="3" name="details"></textarea>
                 </div>
             </div>
             <button type="submit" class="btn btn-primary">Submit</button>

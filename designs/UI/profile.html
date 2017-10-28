@@ -28,7 +28,7 @@
               <h5>Yummy Recipes</h5>
             </span>
             <span class="navbar-text text-primary">
-              <p class="text-right">Welcome {{ user_name }}</p>
+              <p class="text-right">Welcome {{ current_user.first_name }}</p>
             </span>
             <a href="/logout/"><button type="button" class="btn btn-outline-danger">Sign Out</button></a>
         </div>
@@ -43,8 +43,12 @@
           </div>
         </a>
 
+    </div>
 
-        {% for key, value in recipes.items() %}
+
+
+
+    {% for recipe in current_user.user_recipes.all() %}
         </br>
         <div class="row recipe">
 
@@ -56,7 +60,7 @@
 
             <div class="row">
               <div class="col-10">
-                <h3 class="recipetitle">{{ value.title }}</h3>
+                <h3 class="recipetitle">{{ recipe.title }}</h3>
               </div>
               <div class="col-1">
                 <a class="edit"><i class="fa fa-pencil" aria-hidden="true"></i></a>
@@ -70,15 +74,15 @@
               <div class="col-sm-3">
                 <h5>Ingredients</h5>
                 <ul>
-                  {% for ingredient in value.ingredients %}
-                    <li class={{ ["ingredient",loop.index]|join }}>{{ ingredient }}</li>
+                  {% for ingredient in recipe.recipe_ingredients %}
+                    <li class={{ ["ingredient",loop.index]|join }}>{{ ingredient.ing }}</li>
                   {% endfor %}
                 </ul>
               </div>
 
               <div class="col-sm-9">
                 <h5>Directions</h5>
-                <p class="directions">{{ value.directions }}</p>
+                <p class="directions">{{ recipe.directions }}</p>
               </div>
             </div>
 
@@ -87,8 +91,12 @@
           </div>
         </div>
         {% endfor%}
-    </div>
-<div id="form-goes-in-here"></div>
+
+
+
+
+
+
     <!-- Modal to add recipe -->
     <div class="modal fade" id="add-recipe-modal" tabindex="-1" role="dialog" aria-labelledby="recipe" aria-hidden="true">
       <div class="modal-dialog modal-lg" role="document">
