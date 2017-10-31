@@ -31,10 +31,13 @@
               <p class="text-right">Welcome {{ current_user.first_name }}</p>
             </span>
             <a href="/logout/"><button type="button" class="btn btn-outline-danger">Sign Out</button></a>
+
         </div>
+
     </nav>
 
     <div class="container-fluid mTop">
+        <p>token: {{ token }}</p>
         <!-- button for user to enable them add recipe -->
         <a id="add-recipe">
           <div class="row">

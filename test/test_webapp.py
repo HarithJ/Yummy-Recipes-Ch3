@@ -1,7 +1,7 @@
 import os
 import unittest
 #import webapp
-from webapp.app import *
+from app import create_app, db
 
 class appTestCase(unittest.TestCase):
     def setUp(self):

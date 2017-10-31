@@ -1,5 +1,7 @@
-from flask import render_template, redirect, url_for, request, session, g, abort, flash
+from flask import render_template, redirect, url_for, request, session, g, abort, flash, jsonify
 from flask_login import login_required, login_user, logout_user, current_user
+import jwt
+import datetime
 
 from . import auth
 from .. import db
@@ -18,7 +20,8 @@ def login_page():
 @auth.route('/profile.html/')
 @login_required
 def profile(ingredients = None):
-    return render_template("profile.html")
+    token = session['token']
+    return render_template("profile.html", token = token)
 
 @auth.route('/register/', methods=['POST'])
 def register():
@@ -47,6 +50,10 @@ def validate():
     user = User.query.filter_by(email=request.form['email']).first()
     if user is not None and user.verify_password(request.form['password']):
         login_user(user)
+
+        #token
+        token = jwt.encode({'id': user.id, 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, 'asd')
+        session['token'] = token.decode('UTF-8')
 
         return redirect(url_for('auth.profile'))
 
