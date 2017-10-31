@@ -1,8 +1,34 @@
-from flask import Flask, jsonify, make_response, render_template
+from flask import Flask, jsonify, make_response, render_template, request
+from functools import wraps
 
 from . import api
 from .. import db
 from ..models import User, Ingredient, Recipe
+
+def token_required(f):
+    @wraps(f)
+
+    def decorated (*args, **kwargs):
+        token = None
+
+        if 'x-access-token' in request.headers:
+            token = request.headers['x-access-token']
+
+        if not token:
+            return jsonify({'message': 'Token is missing'}), 401
+            return request.headers
+
+        try:
+            data = jwt.decode(token, 'asd')
+            current_user = User.query.filter_by(id=data['id']).first()
+            #login_user(current_user)
+        except:
+            return jsonify({'message': 'Token is invalid!'}), 401
+
+
+        return f(current_user, *args, **kwargs)
+
+    return decorated
 
 def turn_recipe_in_obj(recipe):
     #store ingredients
@@ -20,7 +46,8 @@ def turn_recipe_in_obj(recipe):
     return obj
 
 @api.route('/api/v1.0/recipes', methods=['GET'])
-def get_recipes():
+@token_required
+def get_recipes(current_user):
     recipes = Recipe.query.all()
 
     #return render_template("test.html", recipes=recipes)
