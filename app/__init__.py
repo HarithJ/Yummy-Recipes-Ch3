@@ -23,7 +23,10 @@ def create_app(config_name):
     #Load the config file
     app.config.from_object(app_config[config_name])
 
-    #app.config.from_pyfile('config.py')
+    '''
+    When deploying to heroku comment the below line
+    '''
+    app.config.from_pyfile('config.py')
 
     db.init_app(app)
 

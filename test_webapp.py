@@ -1,6 +1,6 @@
 import os
 import unittest
-#import webapp
+
 from app import create_app, db
 
 class appTestCase(unittest.TestCase):
