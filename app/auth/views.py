@@ -21,7 +21,8 @@ def login_page():
 @login_required
 def profile(ingredients = None):
     token = session['token']
-    return render_template("profile.html", token = token)
+    data = session['data']
+    return render_template("profile.html", token = token, data=data)
 
 @auth.route('/register/', methods=['POST'])
 def register():
@@ -54,6 +55,7 @@ def validate():
         #token
         token = jwt.encode({'id': user.id, 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, 'asd')
         session['token'] = token.decode('UTF-8')
+        session['data'] = jwt.decode(token, 'asd')
 
         return redirect(url_for('auth.profile'))
 

@@ -16,11 +16,10 @@ def token_required(f):
 
         if not token:
             return jsonify({'message': 'Token is missing'}), 401
-            return request.headers
 
         try:
             data = jwt.decode(token, 'asd')
-            current_user = User.query.filter_by(id=data['id']).first()
+            api_current_user = User.query.filter_by(id=data['id']).first()
             #login_user(current_user)
         except:
             return jsonify({'message': 'Token is invalid!'}), 401
