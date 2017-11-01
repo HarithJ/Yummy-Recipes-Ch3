@@ -1,4 +1,6 @@
 from flask import Flask, jsonify, make_response, render_template, request
+from flask_login import login_user
+
 from functools import wraps
 
 from . import api
@@ -17,20 +19,15 @@ def token_required(f):
         if not token:
             return jsonify({'message': 'Token is missing'}), 401
 
-
-        data = jwt.decode(token, 'asd')
-        api_current_user = User.query.get(data['id'])
-        #login_user(current_user)
-
-        if api_current_user is None:
-            return jsonify({
-                'message': 'Token is invalid!',
-                'data': data,
-                'current': api_current_user.email
-            }), 401
+        try:
+            data = jwt.decode(token, 'asd')
+            api_current_user = User.query.filter_by(id=data['id']).first()
+            login_user(current_user)
+        except:
+            return jsonify({'message': 'Token is invalid!'}), 401
 
 
-        return f(api_current_user, *args, **kwargs)
+        return f(current_user, *args, **kwargs)
 
     return decorated
 
