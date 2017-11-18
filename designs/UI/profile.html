@@ -18,27 +18,42 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='myCSS.css') }}">
   </head>
   <body>
-    <nav class="navbar navbar-expand-sm navbar-dark" style="background-color: #e3f2fd;">
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-        </button>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark justify-content-between">
+      <span class="navebar-brand mb-0 h2 header-text" style="color: #eee8aa">
+        Yummy Recipes
+      </span>
 
-        <div class="collapse navbar-collapse justify-content-between align-items-center" id="navbarText">
-            <span class="navebar-text header-text">
-              <h5>Yummy Recipes</h5>
-            </span>
-            <span class="navbar-text text-primary">
-              <p class="text-right">Welcome {{ current_user.first_name }}</p>
-            </span>
-            <a href="/logout/"><button type="button" class="btn btn-outline-danger">Sign Out</button></a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#yummyrecipesNavbar" aria-controls="yummyrecipesNavbar" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+      </button>
 
-        </div>
+      <div id="yummyrecipesNavbar" class="collapse navbar-collapse">
 
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="/categories.html/">Categories</a>
+          </li>
+        </ul>
+
+        <span class="navbar-text mr-auto" style="color:#f0f8ff">
+          Welcome {{ user_name }}
+        </span>
+
+        <a href="/logout/"><button type="button" class="btn btn-outline-warning">Sign Out</button></a>
+
+      </div>
     </nav>
 
     <div class="container-fluid mTop">
-        <p>token: {{ token }}</p>
-        <p>token decoded: {{ data }}</p>
+      <!-- Flash msg to show that incorrect credentials -->
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <p class="text-center text-danger">{{ message }}</p>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
         <!-- button for user to enable them add recipe -->
         <a id="add-recipe">
           <div class="row">
@@ -47,24 +62,28 @@
           </div>
         </a>
 
-    </div>
 
-
-
-
-    {% for recipe in current_user.user_recipes.all() %}
+        {% for key, value in recipes.items() %}
         </br>
         <div class="row recipe">
 
           <div class="col-2">
-            <img src="{{ url_for('static', filename='fish.jpg') }}" class="img-fluid img-thumbnail">
+            {% if value.image_name == "noImage" %}
+            <div class="no-image">
+              <h5>No Image</h5>
+              <p>Click edit button to add one NOW!!</p>
+            </div>
+
+            {% else %}
+              <img src="{{ url_for('static', filename='uploads/{}'.format(value.image_name)) }}" class="img-fluid img-thumbnail" name="{{ value.image_name }}">
+            {% endif %}
           </div>
 
           <div class="col-10">
 
             <div class="row">
               <div class="col-10">
-                <h3 class="recipetitle">{{ recipe.title }}</h3>
+                <h3 class="recipetitle">{{ value.title }}</h3>
               </div>
               <div class="col-1">
                 <a class="edit"><i class="fa fa-pencil" aria-hidden="true"></i></a>
@@ -78,15 +97,15 @@
               <div class="col-sm-3">
                 <h5>Ingredients</h5>
                 <ul>
-                  {% for ingredient in recipe.recipe_ingredients %}
-                    <li class={{ ["ingredient",loop.index]|join }}>{{ ingredient.ing }}</li>
+                  {% for ingredient in value.ingredients %}
+                    <li class={{ ["ingredient",loop.index]|join }}>{{ ingredient }}</li>
                   {% endfor %}
                 </ul>
               </div>
 
               <div class="col-sm-9">
                 <h5>Directions</h5>
-                <p class="directions">{{ recipe.directions }}</p>
+                <p class="directions">{{ value.directions }}</p>
               </div>
             </div>
 
@@ -95,21 +114,17 @@
           </div>
         </div>
         {% endfor%}
-
-
-
-
-
+    </div>
 
     <!-- Modal to add recipe -->
     <div class="modal fade" id="add-recipe-modal" tabindex="-1" role="dialog" aria-labelledby="recipe" aria-hidden="true">
       <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
 
-            <form method="Post" name="addrecipeForm" id="add-recipe-modal-form">
+            <form method="Post" name="addrecipeForm" id="add-recipe-modal-form" enctype=multipart/form-data>
 
               <div class="modal-header">
-                <input type="text" class="form-control recipetitle" name="recipetitle" placeholder="Recipe Title">
+                <input type="text" class="form-control recipetitle validate" name="recipetitle" placeholder="Recipe Title">
 
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                   <span aria-hidden="true">&times;</span>
@@ -117,18 +132,24 @@
               </div>
 
               <div class="modal-body">
+                <h4>Add an Image</h4>
+                <input class="hidden-control" type="hidden" name="hidden_recipe_image" />
+                <label class="custom-file">
+                  <input type="file" id="recipe-image" name="recipe_image">
+                </label>
 
                 <h4>Ingredients</h4>
                 <ul id="ingredients">
                   <li id="last-ingredient-list">
                     <input type="text" name="last-ingredient">
+
                   </li>
                 </ul>
 
                 <h4>Directions</h4>
                 <div class="row">
                   <div class="col-12">
-                    <textarea class="form-control directions" name="directions" rows="3"></textarea>
+                    <textarea class="form-control directions validate" name="directions" rows="5"></textarea>
                   </div>
                 </div>
 
@@ -144,6 +165,7 @@
       </div>
     </div>
     <!-- End modal-->
+
 
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS, then my JS -->

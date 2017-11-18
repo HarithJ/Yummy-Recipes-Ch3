@@ -1,116 +1,58 @@
-from flask import render_template, redirect, url_for, request, session, g, abort, flash, jsonify
-from flask_login import login_required, login_user, logout_user, current_user
-import jwt
-import datetime
+from flask import render_template, redirect, url_for, request, session, g, abort, flash
 
 from . import auth
-from .. import db
-from ..models import User, Ingredient, Recipe
-
+from ..models import User, Globals
+from app import validate_input
 
 @auth.route('/')
 @auth.route('/index.html/')
 def index():
+    """This function takes a user to index.html page (homepage) which displays a registration form and a link to login page."""
+
     return render_template("index.html")
+
 
 @auth.route('/login.html/')
 def login_page():
+    """function renders a template for logging in"""
     return render_template("login.html")
-
-@auth.route('/profile.html/')
-@login_required
-def profile(ingredients = None):
-    token = session['token']
-    data = session['data']
-    return render_template("profile.html", token = token, data=data)
 
 @auth.route('/register/', methods=['POST'])
 def register():
-    global users
+    """This function is there to register a user"""
     error = None
+
+    #: check if the user inputted leading spaces
+    if validate_input(request.form['name']) or validate_input(request.form['email']):
+        error = 'Leading spaces inserted in name/email field!'
+
     # check if the password and ver password are not the same
     if request.form['password'] != request.form['verpassword']:
         error = 'Password does not match the password in verify password field'
-        return render_template('index.html', error=error)
 
-    user = User(email = request.form['email'],
-                username = request.form['username'],
-                first_name = request.form['first_name'],
-                last_name = request.form['last_name'],
-                password = request.form['password'])
+    if error:
+        flash(error)
+        return redirect(url_for('auth.index'))
 
-    # add employee to the database
-    db.session.add(user)
-    db.session.commit()
-    flash('You have successfully registered! You may login')
-
+    Globals.users[request.form['name']] = User(request.form['name'], request.form['email'], request.form['password'], request.form['details'])
     return redirect(url_for('auth.login_page'))
 
 @auth.route('/validate/', methods=['POST'])
 def validate():
-    user = User.query.filter_by(email=request.form['email']).first()
-    if user is not None and user.verify_password(request.form['password']):
-        login_user(user)
+    """This function validates the login credentials entered by a user in login form"""
 
-        #token
-        token = jwt.encode({'id': user.id, 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, 'asd')
-        session['token'] = token.decode('UTF-8')
-        session['data'] = jwt.decode(token, 'asd')
+    #: if the user has registered before
+    if request.form['name'] in Globals.users:
+        #: then also check if his password matches the password provided
+        if Globals.users[request.form['name']].is_valid(request.form['password']):
+            Globals.current_user = Globals.users[request.form['name']]
+            return redirect(url_for('categories.profile'))
 
-        return redirect(url_for('auth.profile'))
-
-    flash("Invalid email or password")
+    #: if incorrect credentials are entered then display a flash message to the user
+    flash("Incorrect Credentials Entered")
     return redirect(url_for('auth.login_page'))
-
-
-@auth.route('/addrecipe/', methods=['POST'])
-@login_required
-def add_recipe():
-    ingredient = None
-    ingredients = []
-    ingredient_num = 1
-    while 'ingredient{}'.format(ingredient_num) in request.form:
-        ingredient = Ingredient(ing=request.form['ingredient{}'.format(ingredient_num)])
-        ingredients.append(ingredient)
-        db.session.add(ingredient)
-        ingredient_num += 1
-
-    recipe = Recipe(title=request.form['recipetitle'], recipe_ingredients=ingredients, directions=request.form['directions'])
-
-    current_user.user_recipes.append(recipe)
-
-
-    db.session.add(recipe)
-    db.session.commit()
-
-    return redirect(url_for('auth.profile'))
-
-'''
-@app.route('/editrecipe/<string:prev_title>', methods=['POST'])
-def edit_recipe(prev_title):
-    ingredient = None
-    ingredients = []
-    ingredient_num = 1
-    while 'ingredient{}'.format(ingredient_num) in request.form:
-        ingredient = request.form['ingredient{}'.format(ingredient_num)]
-        ingredients.append(ingredient)
-        ingredient_num += 1
-
-    current_user.edit_recipe(prev_title, request.form['recipetitle'], ingredients, request.form['directions'])
-    return redirect(url_for('profile'))
-
-@app.route('/deleterecipe/<string:recipe_title>')
-def delete_recipe(recipe_title):
-    current_user.delete_recipe(recipe_title)
-    return redirect(url_for('profile'))
-    '''
 
 @auth.route('/logout/')
-@login_required
 def logout():
-    logout_user()
-    flash('You have successfully loged out!')
+    Globals.current_user = None
     return redirect(url_for('auth.login_page'))
-
-if __name__== '__main__':
-    app.run()

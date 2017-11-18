@@ -5,6 +5,6 @@ python:
 # command to run tests
 script:
     - nosetests
-    - nosetests --exe --with-coverage --cover-package=test.test_webapp
+    - nosetests --exe --with-coverage --cover-package=test_webapp
     - coveralls
 after_success: "coveralls"
