@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+
+    <!-- link to google font -->
+    <link href="https://fonts.googleapis.com/css?family=Nosifer" rel="stylesheet">
+
+    <!-- link to fontawesome -->
+    <script src="https://use.fontawesome.com/039e3bc5d2.js"></script>
+
+    <!--CSS used after user logs in -->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='myCSS.css') }}">
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-sm navbar-dark" style="background-color: #e3f2fd;">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse justify-content-between align-items-center" id="navbarText">
+            <span class="navebar-text header-text">
+              <h5>Yummy Recipes</h5>
+            </span>
+            <span class="navbar-text text-primary">
+              <p class="text-right">Welcome {{ current_user.first_name }}</p>
+            </span>
+            <a href="/logout/"><button type="button" class="btn btn-outline-danger">Sign Out</button></a>
+
+        </div>
+
+    </nav>
+
+    <div class="container-fluid mTop">
+        <p>token: {{ token }}</p>
+        <p>token decoded: {{ data }}</p>
+        <!-- button for user to enable them add recipe -->
+        <a id="add-recipe">
+          <div class="row">
+            <div class="col-auto"><i class="fa fa-plus-circle fa-2x" aria-hidden="true"></i></div>
+            <div class="col-auto"><h5>Click To Add A Recipe</h5></div>
+          </div>
+        </a>
+
+    </div>
+
+
+
+
+    {% for recipe in current_user.user_recipes.all() %}
+        </br>
+        <div class="row recipe">
+
+          <div class="col-2">
+            <img src="{{ url_for('static', filename='fish.jpg') }}" class="img-fluid img-thumbnail">
+          </div>
+
+          <div class="col-10">
+
+            <div class="row">
+              <div class="col-10">
+                <h3 class="recipetitle">{{ recipe.title }}</h3>
+              </div>
+              <div class="col-1">
+                <a class="edit"><i class="fa fa-pencil" aria-hidden="true"></i></a>
+              </div>
+              <div class="col-1">
+                <a class="delete-recipe"><i class="fa fa-trash-o" aria-hidden="true"></i></a>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-sm-3">
+                <h5>Ingredients</h5>
+                <ul>
+                  {% for ingredient in recipe.recipe_ingredients %}
+                    <li class={{ ["ingredient",loop.index]|join }}>{{ ingredient.ing }}</li>
+                  {% endfor %}
+                </ul>
+              </div>
+
+              <div class="col-sm-9">
+                <h5>Directions</h5>
+                <p class="directions">{{ recipe.directions }}</p>
+              </div>
+            </div>
+
+
+
+          </div>
+        </div>
+        {% endfor%}
+
+
+
+
+
+
+    <!-- Modal to add recipe -->
+    <div class="modal fade" id="add-recipe-modal" tabindex="-1" role="dialog" aria-labelledby="recipe" aria-hidden="true">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+
+            <form method="Post" name="addrecipeForm" id="add-recipe-modal-form">
+
+              <div class="modal-header">
+                <input type="text" class="form-control recipetitle" name="recipetitle" placeholder="Recipe Title">
+
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+
+              <div class="modal-body">
+
+                <h4>Ingredients</h4>
+                <ul id="ingredients">
+                  <li id="last-ingredient-list">
+                    <input type="text" name="last-ingredient">
+                  </li>
+                </ul>
+
+                <h4>Directions</h4>
+                <div class="row">
+                  <div class="col-12">
+                    <textarea class="form-control directions" name="directions" rows="3"></textarea>
+                  </div>
+                </div>
+
+              </div>
+
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Save changes</button>
+              </div>
+            </form>
+
+        </div>
+      </div>
+    </div>
+    <!-- End modal-->
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS, then my JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='myJS.js') }}"></script>
+  </body>
+</html>

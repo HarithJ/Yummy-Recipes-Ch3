@@ -1,0 +1,10 @@
+language: python
+python:
+    - 3.6
+
+# command to run tests
+script:
+    - nosetests
+    - nosetests --exe --with-coverage --cover-package=test.test_webapp
+    - coveralls
+after_success: "coveralls"

@@ -1,0 +1,28 @@
+.mTop{
+    margin-top: 50px;
+}
+
+.header{
+    background-image: url("bg.jpg");
+}
+
+.header-text {
+    font-family: 'Nosifer', cursive;
+    color: #D2691E;
+    text-shadow: 2px 2px grey;
+    margin-left:12px;
+    z-index:1;
+}
+
+.header-text h1{
+    font-size: 80px;
+    margin-left:50px;
+}
+
+.header-img1 img {
+    margin-left: 130px;
+}
+
+.header-img2 img {
+    margin-left: 100px;
+}
