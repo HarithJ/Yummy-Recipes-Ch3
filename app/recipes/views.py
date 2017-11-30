@@ -1,21 +1,23 @@
 import os
 from flask import render_template, redirect, url_for, request, session, g, abort, flash
+from flask_login import current_user
 from werkzeug.utils import secure_filename
 
-
-from app import category_required, validate_input
 from . import recipes
-from ..models import Globals
+from app import validate_input
+from ..models import Category, Globals
 from config import Config
 
 @recipes.route('/recipes', methods=['GET'])
-@category_required
+@Category.category_required
 def recipes_page():
-    return render_template("profile.html", recipes=Globals.current_category.recipes, user_name=Globals.current_user.name)
+    Globals.current_category = current_user.return_category(Globals.current_category.name)
+    r = Globals.current_category.get_recipes()
+    return render_template("profile.html", recipes=r, user_name=current_user.username)
 
 
 @recipes.route('/addrecipe/', methods=['POST'])
-@category_required
+@Category.category_required
 def add_recipe():
     ingredient = None
     ingredients = []
@@ -42,10 +44,11 @@ def add_recipe():
         filename = "noImage"
 
     Globals.current_category.add_recipe(request.form['recipetitle'], ingredients, request.form['directions'], filename)
-    return redirect(url_for('recipes.recipes_page', category_name=Globals.current_category.category_name))
+    return redirect(url_for('recipes.recipes_page', category_name=Globals.current_category.name))
+
 
 @recipes.route('/editrecipe/<string:prev_title>', methods=['POST'])
-@category_required
+@Category.category_required
 def edit_recipe(prev_title):
     ingredient = None
     ingredients = []
@@ -65,12 +68,11 @@ def edit_recipe(prev_title):
         filename = secure_filename(request.form['hidden_recipe_image'])
 
     Globals.current_category.edit_recipe(prev_title, request.form['recipetitle'], ingredients, request.form['directions'], filename)
-    return redirect(url_for('recipes.recipes_page', category_name=Globals.current_category.category_name))
+    return redirect(url_for('recipes.recipes_page', category_name=Globals.current_category.name))
 
 @recipes.route('/deleterecipe/<string:recipe_title>')
-@category_required
+@Category.category_required
 def delete_recipe(recipe_title):
-    if Globals.current_category.recipes[recipe_title].image_name != 'noImage':
-        os.remove(os.path.join(Config.UPLOAD_FOLDER, Globals.current_category.recipes[recipe_title].image_name))
+
     Globals.current_category.delete_recipe(recipe_title)
-    return redirect(url_for('recipes.recipes_page', category_name=Globals.current_category.category_name))
+    return redirect(url_for('recipes.recipes_page', category_name=Globals.current_category.name))

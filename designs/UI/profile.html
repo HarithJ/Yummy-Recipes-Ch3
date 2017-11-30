@@ -62,20 +62,19 @@
           </div>
         </a>
 
-
-        {% for key, value in recipes.items() %}
+        {% for value in recipes %}
         </br>
         <div class="row recipe">
 
           <div class="col-2">
-            {% if value.image_name == "noImage" %}
+            {% if value.filename == "noImage" %}
             <div class="no-image">
               <h5>No Image</h5>
               <p>Click edit button to add one NOW!!</p>
             </div>
 
             {% else %}
-              <img src="{{ url_for('static', filename='uploads/{}'.format(value.image_name)) }}" class="img-fluid img-thumbnail" name="{{ value.image_name }}">
+              <img src="{{ url_for('static', filename='uploads/{}'.format(value.filename)) }}" class="img-fluid img-thumbnail" name="{{ value.filename }}">
             {% endif %}
           </div>
 
@@ -97,8 +96,8 @@
               <div class="col-sm-3">
                 <h5>Ingredients</h5>
                 <ul>
-                  {% for ingredient in value.ingredients %}
-                    <li class={{ ["ingredient",loop.index]|join }}>{{ ingredient }}</li>
+                  {% for ingredient in value.recipe_ingredients.all() %}
+                    <li class={{ ["ingredient",loop.index]|join }}>{{ ingredient.ing }}</li>
                   {% endfor %}
                 </ul>
               </div>

@@ -1,50 +1,39 @@
+# third-party imports
 from flask import Flask, flash, redirect, url_for
-from functools import wraps
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager, login_required
+from flask_migrate import Migrate
 import re
 
+# local imports
 from config import app_config
-from .models import Globals
 
 def validate_input(input_str):
     if re.match('^\s', input_str) or input_str == '':
         return True
 
-def login_required(f):
-    """
-    Check if a user is logged in or not
-    If a user if not logged in, then redirect them to login page
-    with a flash msg.
-    """
-    @wraps(f)
-    def wrapper(*args, **kwargs):
-        if Globals.current_user == None:
-            flash("You must be logged in to access this page. :)")
-            return redirect(url_for('auth.login_page'))
 
-        return f(*args, **kwargs)
-    return wrapper
+# db variable initialization
+db = SQLAlchemy()
 
-def category_required(f):
-    """
-    First, check if a user is logged in or not,
-    if he is logged in, then check if he has selected a category or not,
-    if he has not selected a category then redirect him to categories page.
-    """
-    @login_required
-    @wraps(f)
-    def wrapper(*args, **kwargs):
-        if Globals.current_category == None:
-            flash("You must select a category first to view the recipes ;)")
-            return redirect(url_for('categories.categories_page'))
+login_manager = LoginManager()
 
-        return f(*args, **kwargs)
-    return wrapper
 
 def create_app(config_name):
     app = Flask(__name__, static_folder='../designs/UI', template_folder='../designs/UI', instance_relative_config=True)
 
     app.config.from_object(app_config[config_name])
     app.config.from_pyfile('config.py')
+
+    db.init_app(app)
+
+    login_manager.init_app(app)
+    login_manager.login_message = "You must be logged in to access this page."
+    login_manager.login_view = "auth.login_page"
+
+    migrate = Migrate(app, db)
+
+    from app import models
 
     from .auth import auth as auth_blueprint
     app.register_blueprint(auth_blueprint)
@@ -55,5 +44,7 @@ def create_app(config_name):
     from .recipes import recipes as recipes_blueprint
     app.register_blueprint(recipes_blueprint)
 
+    from .api import api as api_blueprint
+    app.register_blueprint(api_blueprint, url_prefix='/api/v1.0')
 
     return app

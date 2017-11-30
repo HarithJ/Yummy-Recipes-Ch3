@@ -1,83 +1,185 @@
-class Category:
-    """ A class of categories, which takes category's name as the first argument.
-    This class also keeps track of recipes that will be for this particular class.
-    The instance of this class will have the ability to do the following:
-        1. Add a recipe through add_recipe method which takes the title of the recipe, ingredients, and directions as its argument.
-        2. Edit a recipe by using edit_recipe method which takes the previous title, the new title, ingredients, and directions as arguments.
-        3. Delete a recipe by using delete_recipe method that takes the recipe's title that needs to be deleted as its argument
-        4. Edit current category by changing its name to a new name.
-    """
+import os
+from flask_login import UserMixin, login_required, current_user
+from flask import flash, redirect, url_for
+from werkzeug.security import generate_password_hash, check_password_hash
+from functools import wraps
+import jwt
+from flask import jsonify, request
 
-    def __init__(self, category_name):
-        self.category_name = category_name
-        self.recipes = {}
+from config import Config
 
-    def add_recipe(self, title, ingredients, directions, recipe_image):
-        self.recipes[title] = Recipe(title, ingredients, directions, recipe_image)
-
-    def edit_recipe(self, prev_title, title, ingredients, directions, recipe_image):
-        self.recipes.pop(prev_title)
-        self.recipes[title] = Recipe(title, ingredients, directions, recipe_image)
-
-    def delete_recipe(self, recipe_title):
-        self.recipes.pop(recipe_title)
-
-    def edit_category(self, category_name):
-        self.category_name = category_name
-
-
-class Recipe:
-    """This is a class that will represent a recipe.
-    It takes a title for the recipe, it's ingredients and directions as arguments.
-    """
-    def __init__(self, title, ingredients, directions, image_name):
-        self.title = title
-        self.ingredients = ingredients
-        self.directions = directions
-        self.image_name = image_name
-
-class User():
-    """This class will represent a user.
-    It takes the user's name, his email, his password, and details as arguments.
-    It also keeps track of categories of the user, so each user will have his/her own list of categories
-    The class has the following methods:
-        1. is_valid(password): which takes a password as an argument and returns True is the password provided matches the users password
-        2. add_category(category_name): It adds a category, and takes category's name as the argument
-        3. delete_category(category_name): It deletes a category whose name is provided as an arg
-        4. edit_category(prev_name, new_name): This renames 'prev_category' with a new name provided as the 2nd arg
-            (this also calls the edit_category method presented in Category class)
-        5. return_category(category_name): It returns an instance of the Class Category, given that category's name
-    """
-    def __init__(self, name, email, password, details):
-        self.name = name
-        self.email = email
-        self.password = password
-        self.details = details
-        self.categories = {}
-
-    def is_valid(self, password):
-        return self.password == password
-
-    def add_category(self, category_name):
-        self.categories[category_name] = Category(category_name)
-
-    def delete_category(self, category_name):
-        self.categories.pop(category_name)
-
-    def edit_category(self, prev_name, new_name):
-
-        self.categories[prev_name].edit_category(new_name)
-        self.categories[new_name] = self.categories.pop(prev_name)
-
-    def return_category(self, category_name):
-        return self.categories[category_name]
+from app import db, login_manager
 
 class Globals():
-    """These are global variables that keep track of:
-        1. registered users
-        2. the user which is currently logged in
-        3. The category which a user is at currently
-    """
-    users = {}
-    current_user = None
     current_category = None
+
+class Ingredient(db.Model):
+    __tablename__ = 'ingredients'
+    __table_args__ = {'extend_existing': True}
+
+    id = db.Column(db.Integer, primary_key=True)
+    ing = db.Column(db.String(100))
+
+    recipe_id = db.Column(db.Integer, db.ForeignKey("recipes.id"))
+
+
+class Recipe(db.Model):
+    __tablename__ = 'recipes'
+    __table_args__ = {'extend_existing': True}
+
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100))
+    recipe_ingredients = db.relationship('Ingredient', backref='ingredient', lazy='dynamic', cascade="all, delete-orphan")
+    directions = db.Column(db.String(10000))
+    filename = db.Column(db.String(100))
+
+    category_id = db.Column(db.Integer, db.ForeignKey("categories.id"))
+
+class Category(db.Model):
+    __tablename__ = 'categories'
+    __table_args__ = {'extend_existing': True}
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100))
+    category_recipes = db.relationship('Recipe', backref='recipe', lazy='dynamic', cascade="all, delete-orphan")
+
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+
+    def add_recipe(self, recipe_title, ingredients, directions, filename):
+        for i in range(len(ingredients)):
+            ingredients[i] = Ingredient(ing=ingredients[i])
+            db.session.add(ingredients[i])
+
+        recipe = Recipe(title = recipe_title, recipe_ingredients = ingredients, directions = directions, filename = filename)
+
+        self.category_recipes.append(recipe)
+        db.session.add(recipe)
+
+        db.session.commit()
+
+    def get_recipes(self):
+        return self.category_recipes.all()
+
+    def edit_recipe(self, prev_title, new_title, ingredients, directions, filename):
+        edit_this = Recipe.query.filter_by(title=prev_title).filter_by(category_id=self.id).first()
+
+        for i in range(len(ingredients)):
+            ingredients[i] = Ingredient(ing=ingredients[i])
+            db.session.add(ingredients[i])
+
+        edit_this.title = new_title
+        edit_this.recipe_ingredients = ingredients
+        edit_this.directions = directions
+        edit_this.filename = filename
+
+        db.session.commit()
+
+    def delete_recipe(self, recipe_title):
+        delete_this = Recipe.query.filter_by(title=recipe_title).filter_by(category_id=self.id).first()
+
+        if delete_this.filename != 'noImage':
+            os.remove(os.path.join(Config.UPLOAD_FOLDER, delete_this.filename))
+
+        db.session.delete(delete_this)
+        db.session.commit()
+
+    def category_required(f):
+        """
+        First, check if a user is logged in or not,
+        if he is logged in, then check if he has selected a category or not,
+        if he has not selected a category then redirect him to categories page.
+        """
+        @login_required
+        @wraps(f)
+        def wrapper(*args, **kwargs):
+            if Globals.current_category == None:
+                flash("You must select a category first to view the recipes ;)")
+                return redirect(url_for('categories.categories_page'))
+
+            return f(*args, **kwargs)
+        return wrapper
+
+
+
+class User(UserMixin, db.Model):
+    '''
+    Create a user table
+    '''
+    __tablename__ = 'users'
+    __table_args__ = {'extend_existing': True}
+
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(60), index=True, unique=True)
+    username = db.Column(db.String(60), index=True, unique=True)
+    first_name = db.Column(db.String(60), index=True)
+    last_name = db.Column(db.String(60), index=True)
+    password_hash = db.Column(db.String(128))
+    user_categories = db.relationship('Category', backref='users', lazy='dynamic')
+
+    @property
+    def password(self):
+        '''
+        Prevent Password from being accessed
+        '''
+        raise AttributeError('password is not a readable attribute.')
+
+    @password.setter
+    def password(self, password):
+        '''
+        Set password to a hashed password
+        '''
+        self.password_hash = generate_password_hash(password)
+
+    def verify_password(self, password):
+        '''
+        check if hashed password matches actual password
+        '''
+        return check_password_hash(self.password_hash, password)
+
+    def edit_category(self, prev_name, new_name):
+        edit_this = Category.query.filter_by(name=prev_name).filter_by(user_id=self.id).first()
+        edit_this.name = new_name
+
+        db.session.commit()
+
+    def return_category(self, category_name):
+        return Category.query.filter_by(name=category_name).filter_by(user_id=self.id).first()
+
+    def delete_category(self, category_name):
+        delete_this = Category.query.filter_by(name=category_name).filter_by(user_id=self.id).first()
+
+        db.session.delete(delete_this)
+        db.session.commit()
+
+    def token_required(f):
+        @wraps(f)
+        def wrapper(*args, **kwargs):
+            token = None
+
+            if 'x-access-token' in request.headers:
+                token = request.headers['x-access-token']
+
+            if not token:
+                return jsonify({'message' : 'Token is missing'}), 401
+
+            try:
+                data = jwt.decode(token, 'testing')
+                current_user = User.query.filter_by(id=data['id']).first()
+            except:
+                return jsonify({'message' : 'Token is invalid'}), 401
+
+            return f(current_user, *args, **kwargs)
+        return wrapper
+
+
+    def __repr__(self):
+        return '{} {}'.format(self.first_name, self.last_name)
+
+#set up user loader which Flask-Login uses to reload the user object from the user ID stored in the session.
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+
+
+

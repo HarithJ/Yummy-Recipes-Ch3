@@ -57,6 +57,8 @@
         <!-- form to enable users to add a category -->
         <br/>
 
+        <p>Token: {{ token }}</p>
+
           <form method="Post" action="/addcategory/" name="addcategoryForm">
 
             <div class="row justify-content-center">
@@ -72,13 +74,13 @@
           </form>
 
 
-        {% for key, value in categories.items() %}
+        {% for category in current_user.user_categories.all() %}
         </br>
 
         <div class="row justify-content-center category">
 
           <div class="col-7">
-            <h4><a href="{{ url_for('categories.set_current_category', category_name=value.category_name) }}" class="category-name">{{ value.category_name }}</a></h4>
+            <h4><a href="{{ url_for('categories.set_current_category', category_name=category.name) }}" class="category-name">{{ category.name }}</a></h4>
           </div>
 
           <div class="col-1">
@@ -86,7 +88,7 @@
           </div>
 
           <div class="col-1">
-            <a href="{{ url_for('categories.delete_category', category_name=value.category_name) }}"><i class="fa fa-trash-o" aria-hidden="true"></i></a>
+            <a href="{{ url_for('categories.delete_category', category_name=category.name) }}"><i class="fa fa-trash-o" aria-hidden="true"></i></a>
           </div>
 
         </div>

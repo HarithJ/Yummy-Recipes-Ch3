@@ -56,12 +56,23 @@
         <h5 class="text-primary">Register Now!</h5>
         <form action="/register/" method="Post" name="regForm" onsubmit="return validateForm()">
 
-            <div class="form-group row">
+            <div class="form-group form-row">
                 <label for="inputName" class="col-sm-2 col-form-label">Name*</label>
-                <div class="col-sm-10">
-                    <input type="text" class="form-control" id="inputName" placeholder="Full Name" name="name">
+                <div class="col">
+                  <input type="text" class="form-control" placeholder="First name" name="first_name">
+                </div>
+                <div class="col">
+                  <input type="text" class="form-control" placeholder="Last name" name="last_name">
                 </div>
             </div>
+
+            <div class="form-group row">
+                <label for="inputUserName" class="col-sm-2 col-form-label">User Name*</label>
+                <div class="col">
+                  <input type="text" class="form-control" placeholder="User Name" name="username">
+                </div>
+            </div>
+
             <div class="form-group row">
                 <label for="inputEmail" class="col-sm-2 col-form-label">Email address*</label>
                 <div class="col-sm-10">
@@ -69,12 +80,14 @@
                 </div>
                 <small id="emailHelp" class="form-text text-muted col-sm-6">We'll never share your email with anyone else.</small>
             </div>
+
             <div class="form-group row">
                 <label for="inputPassword" class="col-sm-2 col-form-label">Password*</label>
                 <div class="col-sm-10">
                     <input type="password" class="form-control" id="inputPassword" placeholder="Password" name="password">
                 </div>
             </div>
+
             <div class="form-group row">
                 <label for="inputPassword2" class="col-sm-2 col-form-label">Verify Password*</label>
                 <div class="col-sm-10">
@@ -82,12 +95,6 @@
                 </div>
             </div>
             <p id="passNoMatch"></p>
-            <div class="form-group row">
-                <label for="aboutYou" class="col-sm-2 col-form-label">Tell us more about you</label>
-                <div class="col-sm-10">
-                    <textarea class="form-control" id="aboutYou" rows="3" name="details"></textarea>
-                </div>
-            </div>
             <button id="submitButton" type="submit" class="btn btn-primary">Submit</button>
         </form>
     </div>
