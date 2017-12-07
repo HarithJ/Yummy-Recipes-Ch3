@@ -8,8 +8,18 @@ from ..models import Category, User
 def create_user():
     data = request.get_json()
 
+    user = User(email = data['email'],
+                username = data['username'],
+                first_name = data['first_name'],
+                last_name = data['last_name'],
+                password = data['password'])
 
-    return jsonify({'message' : data['email']})
+    # add user to the database
+    db.session.add(user)
+    db.session.commit()
+
+
+    return jsonify({'message' : 'user created successfully'})
 
 @api.route('/category', methods=['GET'])
 def get_all_categories():
