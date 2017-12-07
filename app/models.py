@@ -5,6 +5,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 import jwt
 from flask import jsonify, request
+from datetime import datetime, timedelta
 
 from config import Config
 
@@ -114,7 +115,7 @@ class User(UserMixin, db.Model):
     first_name = db.Column(db.String(60), index=True)
     last_name = db.Column(db.String(60), index=True)
     password_hash = db.Column(db.String(128))
-    user_categories = db.relationship('Category', backref='users', lazy='dynamic')
+    user_categories = db.relationship('Category', backref='categories', lazy='dynamic', cascade="all, delete-orphan")
 
     @property
     def password(self):
@@ -151,7 +152,43 @@ class User(UserMixin, db.Model):
         db.session.delete(delete_this)
         db.session.commit()
 
-    def token_required(f):
+    def generate_token(self, user_id):
+        """ Generates the access token"""
+
+        try:
+            # set up a payload with an expiration time
+            payload = {
+                'exp': datetime.utcnow() + timedelta(minutes=5),
+                'iat': datetime.utcnow(),
+                'sub': user_id
+            }
+            # create the byte string token using the payload and the SECRET key
+            jwt_string = jwt.encode(
+                payload,
+                'testing',
+                algorithm='HS256'
+            )
+            return jwt_string
+
+        except Exception as e:
+            # return an error in string format if an exception occurs
+            return str(e)
+
+    @staticmethod
+    def decode_token(token):
+        """Decodes the access token from the Authorization header."""
+        try:
+            # try to decode the token using our SECRET variable
+            payload = jwt.decode(token, 'testing')
+            return payload['sub']
+        except jwt.ExpiredSignatureError:
+            # the token is expired, return an error string
+            return "Expired token. Please login to get a new token"
+        except jwt.InvalidTokenError:
+            # the token is invalid, return an error string
+            return "Invalid token. Please register or login"
+
+    def token_required(self, f):
         @wraps(f)
         def wrapper(*args, **kwargs):
             token = None
@@ -163,7 +200,7 @@ class User(UserMixin, db.Model):
                 return jsonify({'message' : 'Token is missing'}), 401
 
             try:
-                data = jwt.decode(token, 'testing')
+                data = self.decode_token(token)
                 current_user = User.query.filter_by(id=data['id']).first()
             except:
                 return jsonify({'message' : 'Token is invalid'}), 401

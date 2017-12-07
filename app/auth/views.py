@@ -43,7 +43,7 @@ def register():
                 last_name = request.form['last_name'],
                 password = request.form['password'])
 
-    # add employee to the database
+    # add user to the database
     db.session.add(user)
     db.session.commit()
     flash('You have successfully registered! You may login')
@@ -57,8 +57,7 @@ def validate():
     user = User.query.filter_by(email=request.form['email']).first()
     if user is not None and user.verify_password(request.form['password']):
         login_user(user)
-        token = jwt.encode({'id' : user.id, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, 'testing')
-        token = token.decode('UTF-8')
+        token = user.generate_token(user.id)
         return redirect(url_for('categories.profile', token=token))
 
     #: if incorrect credentials are entered then display a flash message to the user

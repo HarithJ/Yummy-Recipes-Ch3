@@ -4,6 +4,22 @@ from . import api
 from app import db
 from ..models import Category, User
 
+@api.route('/user', methods=['POST'])
+def create_user():
+    data = request.get_json()
+
+    user = User(email=data['email'],
+                username=data['username'],
+                first_name=data['first_name'],
+                last_name=data['last_name'],
+                password=data['password'])
+
+    # add user to the database
+    db.session.add(user)
+    db.session.commit()
+
+    return jsonify({'message' : 'new user created successfully'})
+
 @api.route('/category', methods=['GET'])
 def get_all_categories():
     categories = Category.query.all()
