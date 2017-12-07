@@ -8,15 +8,8 @@ from ..models import Category, User
 def create_user():
     data = request.data
 
-    user = User(email=data['email'],
-                username=data['username'],
-                first_name=data['first_name'],
-                last_name=data['last_name'],
-                password=data['password'])
+    user = User(email=data['email'])
 
-    # add user to the database
-    db.session.add(user)
-    db.session.commit()
 
     return jsonify({'message' : 'new user created successfully'})
 
