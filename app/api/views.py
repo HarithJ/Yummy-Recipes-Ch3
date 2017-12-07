@@ -8,10 +8,8 @@ from ..models import Category, User
 def create_user():
     data = request.data
 
-    user = User(email=data['email'])
 
-
-    return jsonify({'message' : 'new user created successfully'})
+    return jsonify({'message' : data['email']})
 
 @api.route('/category', methods=['GET'])
 def get_all_categories():
