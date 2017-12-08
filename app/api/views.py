@@ -1,10 +1,12 @@
 from flask import jsonify, request
+from flask_login import login_required, login_user, logout_user, current_user
+
 
 from . import api
 from app import db
 from ..models import Category, User
 
-@api.route('/user', methods=['POST'])
+@api.route('/register', methods=['POST'])
 def create_user():
     data = request.get_json()
 
@@ -20,6 +22,61 @@ def create_user():
 
 
     return jsonify({'message' : 'user created successfully'})
+
+@api.route('/login', methods=['POST'])
+def login():
+    data = request.get_json()
+
+    user = User.query.filter_by(email=data['email']).first()
+
+    if user is not None and user.verify_password(data['password']):
+        login_user(user)
+        token = user.generate_token(user.id)
+
+        response = {
+            'message' : 'You logged in successfully.',
+            'token' : token
+        }
+
+        return jsonify(response)
+
+    response = {
+        'message': 'Invalid email or password, Please try again'
+    }
+    return jsonify(response)
+
+@api.route('/logout', methods=['POST'])
+def logout():
+    data = request.get_json()
+
+    if data['email'] == current_user.email and current_user.verify_password(data['password']):
+        logout_user()
+        response = {
+            'message': 'You have successfully logged out'
+        }
+        return response
+
+    response = {
+        'message': 'Incorrect credentials supplied.'
+    }
+    return response
+
+@api.route('/reset-password', methods=['POST'])
+def reset_password():
+    data = request.get_json()
+
+    if current_user.verify_password(data['current password']):
+        current_user.password(data['new password'])
+        response = {
+            'message' : 'You have successfully changed your password.'
+        }
+        return response
+
+    response = {
+        'message' : 'incorrect old password supplied.'
+    }
+
+    return response
 
 @api.route('/category', methods=['GET'])
 def get_all_categories():
