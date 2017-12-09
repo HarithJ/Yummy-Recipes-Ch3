@@ -65,6 +65,7 @@ def validate():
     return redirect(url_for('auth.login_page'))
 
 @auth.route('/logout/')
+@login_required
 def logout():
     logout_user()
     flash('You have successfully loged out!')
