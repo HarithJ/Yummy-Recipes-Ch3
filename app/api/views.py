@@ -56,7 +56,7 @@ def login():
 def logout():
     data = request.get_json()
 
-    if current_user == None:
+    if current_user.is_anonymous:
         response = {
             'message' : 'You are not logged in.'
         }
