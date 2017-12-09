@@ -45,11 +45,10 @@ def login():
         token = user.generate_token(user.id)
 
         response = {
-            'message' : 'You logged in successfully.',
-            'token' : token
+            'message' : 'You logged in successfully.'
         }
 
-        return jsonify({"token" : "done"})
+        return jsonify(response)
 
     response = {
         'message': 'Invalid email or password, Please try again'
