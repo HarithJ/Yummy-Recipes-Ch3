@@ -39,8 +39,9 @@ def login():
     user = User.query.filter_by(email=data['email']).first()
 
     if user is not None and user.verify_password(data['password']):
-        return jsonify({'message' : 'done'})
+
         login_user(user)
+        return jsonify({'message' : 'done'})
         token = user.generate_token(user.id)
 
         response = {
