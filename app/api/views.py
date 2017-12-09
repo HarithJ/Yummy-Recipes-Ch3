@@ -1,4 +1,4 @@
-from flask import jsonify, request
+from flask import jsonify, request, make_response
 from flask_login import login_required, login_user, logout_user, current_user
 
 
@@ -49,7 +49,7 @@ def login():
             'token' : token
         }
 
-        return jsonify(response)
+        return make_response(jsonify(response))
 
     response = {
         'message': 'Invalid email or password, Please try again'
