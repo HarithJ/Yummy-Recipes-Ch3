@@ -10,9 +10,11 @@ from ..models import Category, User
 def create_user():
     post_data = request.get_json()
 
-    user = User.query.filter(User.username == post_data['username'] | User.email == post_data['email']).first()
+    user1 = User.query.filter_by(username=post_data['username']).first()
+    user2 = User.query.filter_by(email=post_data['email']).first()
 
-    if user:
+
+    if user1 or user2:
         return jsonify({'message' : 'user exists'})
 
     user = User(email = post_data['email'],
