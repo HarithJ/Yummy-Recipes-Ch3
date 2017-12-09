@@ -36,6 +36,8 @@ def create_user():
 def login():
     data = request.get_json()
 
+    return jsonify({"email" : data['email']})
+
     user = User.query.filter_by(email=data['email']).first()
 
     if user is not None and user.verify_password(data['password']):
