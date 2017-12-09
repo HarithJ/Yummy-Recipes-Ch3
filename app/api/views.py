@@ -38,8 +38,6 @@ def login():
 
     user = User.query.filter_by(email=data['email']).first()
 
-    return jsonify({"name" : user.username})
-
     if user is not None and user.verify_password(data['password']):
         login_user(user)
         token = user.generate_token(user.id)
