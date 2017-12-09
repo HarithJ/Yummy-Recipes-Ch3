@@ -79,8 +79,7 @@ def reset_password():
     data = request.get_json()
 
     if current_user.verify_password(data['current_password']):
-        current_user.password(data['new_password'])
-        return jsonify({"msg" : "password changed"})
+        current_user.reset_password(data['new_password'])
         response = {
             'message' : 'You have successfully changed your password.'
         }

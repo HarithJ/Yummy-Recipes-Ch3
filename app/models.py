@@ -137,6 +137,11 @@ class User(UserMixin, db.Model):
         '''
         return check_password_hash(self.password_hash, password)
 
+    def reset_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+        db.session.commit()
+
     def edit_category(self, prev_name, new_name):
         edit_this = Category.query.filter_by(name=prev_name).filter_by(user_id=self.id).first()
         edit_this.name = new_name
