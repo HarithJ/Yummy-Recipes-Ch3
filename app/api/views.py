@@ -16,6 +16,8 @@ def create_user():
                 last_name = post_data['last_name'],
                 password = post_data['password'])
 
+    return jsonify({'message' : 'user created'})
+
     # add user to the database
     db.session.add(user)
     db.session.commit()
