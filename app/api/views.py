@@ -8,7 +8,7 @@ from ..models import Category, User
 
 @api.route('/user', methods=['POST'])
 def create_user():
-    data = request.data
+    post_data = request.data
 
     '''
     return jsonify({
@@ -19,11 +19,11 @@ def create_user():
         'password' : data['password']
     })'''
 
-    user = User(email = data['email'],
-                username = data['username'],
-                first_name = data['first_name'],
-                last_name = data['last_name'],
-                password = data['password'])
+    user = User(email = post_data['email'],
+                username = post_data['username'],
+                first_name = post_data['first_name'],
+                last_name = post_data['last_name'],
+                password = post_data['password'])
 
     # add user to the database
     db.session.add(user)
