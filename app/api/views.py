@@ -13,7 +13,7 @@ def create_user():
     return jsonify({
         'email' : data['email'],
         'username' : data['username'],
-        'firstname' : data['firstname']
+        'firstname' : data['first_name']
     })
 
     user = User(email = data['email'],
