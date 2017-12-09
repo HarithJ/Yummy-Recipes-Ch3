@@ -83,13 +83,13 @@ def reset_password():
         response = {
             'message' : 'You have successfully changed your password.'
         }
-        return response
+        return jsonify(response)
 
     response = {
         'message' : 'incorrect old password supplied.'
     }
 
-    return response
+    return jsonify(response)
 
 @api.route('/category', methods=['GET'])
 def get_all_categories():
