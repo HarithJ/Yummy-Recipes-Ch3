@@ -8,7 +8,7 @@ from ..models import Category, User
 
 @api.route('/user', methods=['POST'])
 def create_user():
-    post_data = request.data
+    post_data = request.get_json()
 
 
     return jsonify({
