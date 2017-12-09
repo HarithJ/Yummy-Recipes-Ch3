@@ -78,8 +78,8 @@ def logout():
 def reset_password():
     data = request.get_json()
 
-    if current_user.verify_password(data['current password']):
-        current_user.password(data['new password'])
+    if current_user.verify_password(data['current_password']):
+        current_user.password(data['new_password'])
         response = {
             'message' : 'You have successfully changed your password.'
         }
