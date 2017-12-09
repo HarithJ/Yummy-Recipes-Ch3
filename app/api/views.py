@@ -48,7 +48,7 @@ def login():
             'message' : 'You logged in successfully.',
             'token' : token
         }
-        return jsonify({'message' : 'token'})
+
         return jsonify(response)
 
     response = {
