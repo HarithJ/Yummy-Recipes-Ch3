@@ -22,7 +22,8 @@ def create_user():
     user = User(email = data['email'],
                 username = data['username'],
                 first_name = data['first_name'],
-                last_name = data['last_name'])
+                last_name = data['last_name'],
+                password = data['password'])
 
     # add user to the database
     db.session.add(user)
