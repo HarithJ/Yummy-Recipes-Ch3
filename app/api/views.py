@@ -6,7 +6,7 @@ from . import api
 from app import db
 from ..models import Category, User
 
-@api.route('/register', methods=['POST'])
+@api.route('/user', methods=['POST'])
 def create_user():
     data = request.get_json()
 
