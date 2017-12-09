@@ -61,7 +61,7 @@ def logout():
         response = {
             'message': 'You have successfully logged out'
         }
-        return response
+        return jsonify(response)
 
     response = {
         'message': 'Incorrect credentials supplied.'
