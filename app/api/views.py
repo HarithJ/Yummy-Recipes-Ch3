@@ -41,9 +41,9 @@ def login():
     if user is not None and user.verify_password(data['password']):
 
         login_user(user)
-        return jsonify({'message' : 'done'})
-        token = user.generate_token(user.id)
 
+        token = user.generate_token(user.id)
+        return jsonify({'message' : 'token'})
         response = {
             'message' : 'You logged in successfully.',
             'token' : token
