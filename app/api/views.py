@@ -49,7 +49,7 @@ def login():
             'token' : token
         }
 
-        return jsonify({"token" : token})
+        return jsonify({"token" : "done"})
 
     response = {
         'message': 'Invalid email or password, Please try again'
