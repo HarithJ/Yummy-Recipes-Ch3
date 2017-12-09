@@ -10,6 +10,8 @@ from ..models import Category, User
 def create_user():
     data = request.get_json()
 
+    return jsonify({'email' : data['email']})
+
     user = User(email = data['email'],
                 username = data['username'],
                 first_name = data['first_name'],
