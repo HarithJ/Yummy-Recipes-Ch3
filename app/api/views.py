@@ -56,6 +56,12 @@ def login():
 def logout():
     data = request.get_json()
 
+    if not current_user:
+        response = {
+            'message' : 'You are not logged in.'
+        }
+        return jsonify(response)
+
     if data['email'] == current_user.email and current_user.verify_password(data['password']):
         logout_user()
         response = {
