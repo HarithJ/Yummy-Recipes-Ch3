@@ -25,11 +25,7 @@ def create_user():
 
     # add user to the database
     db.session.add(user)
-
     db.session.commit()
-
-    return jsonify({'message' : 'user commited to the db'})
-
 
     return jsonify({'message' : 'user created successfully'})
 
@@ -70,7 +66,7 @@ def logout():
     response = {
         'message': 'Incorrect credentials supplied.'
     }
-    return response
+    return jsonify(response)
 
 @api.route('/reset-password', methods=['POST'])
 def reset_password():
