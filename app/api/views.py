@@ -78,6 +78,12 @@ def logout():
 def reset_password():
     data = request.get_json()
 
+    if current_user.is_anonymous:
+        response = {
+            'message' : 'You are not logged in.'
+        }
+        return jsonify(response)
+
     if current_user.verify_password(data['current_password']):
         current_user.reset_password(data['new_password'])
         response = {
@@ -91,19 +97,45 @@ def reset_password():
 
     return jsonify(response)
 
-@api.route('/category', methods=['GET'])
+@api.route('/category', methods=['POST', 'GET'])
 def get_all_categories():
-    categories = Category.query.all()
+    # Get the access token from the header
+    auth_header = request.headers.get('Authorization')
+    access_token = auth_header.split(" ")[1]
 
-    output = []
+    if access_token:
+        # Attempt to decode the token and get the User ID
+        user_id = User.decode_token(access_token)
+        if not isinstance(user_id, str):
 
-    for category in categories:
-        category_data = {}
-        category_data['id'] = category.id
-        category_data['Name'] = category.name
-        output.append(category_data)
+            if request.method == 'POST':
+                data = request.get_json()
+                if data['name']:
+                    category = Category(name = data['name'], user_id = user_id)
 
-    return jsonify({'categories' : output})
+                    db.session.add(category)
+                    db.session.commit()
+
+                    response = {'id' : category.id,
+                        'category_name' : category.name,
+                        'created_by' : category.user_id
+                    }
+
+                    return jsonify(response)
+
+            else:
+                categories = Category.query.filter_by(user_id=user_id).all()
+
+                output = []
+
+                for category in categories:
+                    category_data = {}
+                    category_data['id'] = category.id
+                    category_data['Name'] = category.name
+                    output.append(category_data)
+
+                return jsonify({'categories' : output})
+
 
 @api.route('/category/<category_id>', methods=['GET'])
 def get_one_category(category_id):
@@ -118,14 +150,12 @@ def get_one_category(category_id):
 
     return jsonify({'category': category_data})
 
-@api.route('/category', methods=['POST'])
-def create_category():
-    return ''
 
-@api.route('/category', methods=['PUT'])
+
+@api.route('/category/<category_id>', methods=['PUT'])
 def change_category_name():
     return ''
 
-@api.route('/category', methods=['DELETE'])
+@api.route('/category/<category_id>', methods=['DELETE'])
 def delete_category():
     return ''
