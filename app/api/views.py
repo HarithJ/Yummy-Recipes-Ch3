@@ -136,6 +136,14 @@ def get_all_categories():
 
                 return jsonify({'categories' : output})
 
+        else:
+            # user is not legit, so the payload is an error message
+            message = user_id
+            response = {
+                'message': message
+            }
+            return make_response(jsonify(response)), 401
+
 
 @api.route('/category/<category_id>', methods=['GET'])
 def get_one_category(category_id):
