@@ -179,8 +179,62 @@ def get_one_category(category_id):
 
 @api.route('/category/<category_id>', methods=['PUT'])
 def change_category_name():
-    return ''
+    # Get the access token from the header
+    auth_header = request.headers.get('Authorization')
+    access_token = auth_header.split(" ")[1]
+
+    if access_token:
+        # Attempt to decode the token and get the User ID
+        user_id = User.decode_token(access_token)
+        if not isinstance(user_id, str):
+            category = Category.query.filter_by(user_id=user_id).filter_by(id=category_id).first()
+
+            if not category:
+                return jsonify({'message' : 'No category found'})
+
+            data = request.get_json()
+            if data['name']:
+                prev_name = category.name
+                category.name = data['name']
+                db.session.commit()
+
+                return jsonify({'message' : 'Category ' + prev_name + 'changed to ' + category.name})
+
+        else:
+            # user is not legit, so the payload is an error message
+            message = user_id
+            response = {
+                'message': message
+            }
+            return make_response(jsonify(response)), 401
 
 @api.route('/category/<category_id>', methods=['DELETE'])
 def delete_category():
+    # Get the access token from the header
+    auth_header = request.headers.get('Authorization')
+    access_token = auth_header.split(" ")[1]
+
+    if access_token:
+        # Attempt to decode the token and get the User ID
+        user_id = User.decode_token(access_token)
+        if not isinstance(user_id, str):
+            category = Category.query.filter_by(user_id=user_id).filter_by(id=category_id).first()
+            category_name = category.name
+            
+            if not category:
+                return jsonify({'message' : 'No category found'})
+                
+            category.delete()
+            db.session.commit()
+            
+            return jsonify({'message' : 'Category ' + category_name + ' deleted successfully'})
+
+        else:
+            # user is not legit, so the payload is an error message
+            message = user_id
+            response = {
+                'message': message
+            }
+            return make_response(jsonify(response)), 401
+
     return ''
