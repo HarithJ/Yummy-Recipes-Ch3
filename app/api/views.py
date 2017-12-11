@@ -107,7 +107,7 @@ def get_all_categories():
         # Attempt to decode the token and get the User ID
         user_id = User.decode_token(access_token)
         if not isinstance(user_id, str):
-
+            # Go ahead and handle the request, the user is authenticated
             if request.method == 'POST':
                 data = request.get_json()
                 if data['name']:
@@ -147,16 +147,33 @@ def get_all_categories():
 
 @api.route('/category/<category_id>', methods=['GET'])
 def get_one_category(category_id):
-    category = Category.query.filter_by(id=category_id).first()
+    # Get the access token from the header
+    auth_header = request.headers.get('Authorization')
+    access_token = auth_header.split(" ")[1]
 
-    if not category:
-        return jsonify({'message' : 'No category found'})
+    if access_token:
+        # Attempt to decode the token and get the User ID
+        user_id = User.decode_token(access_token)
+        if not isinstance(user_id, str):
 
-    category_data = {}
-    category_data['id'] = category.id
-    category_data['Name'] = category.name
+            category = Category.query.filter_by(user_id=user_id).filter_by(id=category_id).first()
 
-    return jsonify({'category': category_data})
+            if not category:
+                return jsonify({'message' : 'No category found'})
+
+            category_data = {}
+            category_data['id'] = category.id
+            category_data['Name'] = category.name
+
+            return jsonify({'category': category_data})
+
+        else:
+            # user is not legit, so the payload is an error message
+            message = user_id
+            response = {
+                'message': message
+            }
+            return make_response(jsonify(response)), 401
 
 
 
