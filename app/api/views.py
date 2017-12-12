@@ -214,6 +214,8 @@ def delete_category(category_id):
     auth_header = request.headers.get('Authorization')
     access_token = auth_header.split(" ")[1]
 
+    return jsonify({'message' : 'access token'})
+
     if access_token:
         # Attempt to decode the token and get the User ID
         user_id = User.decode_token(access_token)
