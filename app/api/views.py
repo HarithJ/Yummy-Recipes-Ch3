@@ -189,7 +189,7 @@ def change_category_name(category_id):
         if not isinstance(user_id, str):
             category = Category.query.filter_by(user_id=user_id).filter_by(id=category_id).first()
 
-            if category:
+            if not category:
                 return jsonify({'message' : category.name})
 
             data = request.get_json()
