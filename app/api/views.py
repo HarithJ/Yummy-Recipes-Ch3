@@ -98,7 +98,7 @@ def reset_password():
     return jsonify(response)
 
 @api.route('/category', methods=['POST', 'GET'])
-def get_all_categories():
+def add_or_get_category():
     # Get the access token from the header
     auth_header = request.headers.get('Authorization')
     access_token = auth_header.split(" ")[1]
@@ -236,3 +236,19 @@ def delete_category(category_id):
                 'message': message
             }
             return make_response(jsonify(response)), 401
+
+@api.route('/recipe', methods=['GET', 'POST'])
+def add_or_get_recipe():
+    return ''
+
+@api.route('/recipe/<recipe_id>', methods=['GET'])
+def get_one_recipe(recipe_id):
+    return ''
+
+@api.route('/recipe/<recipe_id>', methods=['PUT'])
+def change_recipe(recipe_id):
+    return ''
+
+@api.route('/recipe/<recipe_id>', methods=['DELETE'])
+def delete_recipe(recipe_id):
+    return ''
