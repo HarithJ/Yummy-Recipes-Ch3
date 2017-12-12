@@ -189,8 +189,8 @@ def change_category_name():
         if not isinstance(user_id, str):
             category = Category.query.filter_by(user_id=user_id).filter_by(id=category_id).first()
 
-            if not category:
-                return jsonify({'message' : 'No category found'})
+            if category:
+                return jsonify({'message' : category.name})
 
             data = request.get_json()
             if data['name']:
@@ -220,13 +220,13 @@ def delete_category():
         if not isinstance(user_id, str):
             category = Category.query.filter_by(user_id=user_id).filter_by(id=category_id).first()
             category_name = category.name
-            
+
             if not category:
                 return jsonify({'message' : 'No category found'})
-                
+
             category.delete()
             db.session.commit()
-            
+
             return jsonify({'message' : 'Category ' + category_name + ' deleted successfully'})
 
         else:
@@ -236,5 +236,3 @@ def delete_category():
                 'message': message
             }
             return make_response(jsonify(response)), 401
-
-    return ''
