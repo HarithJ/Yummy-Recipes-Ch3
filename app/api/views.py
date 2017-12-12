@@ -218,9 +218,10 @@ def delete_category(category_id):
         # Attempt to decode the token and get the User ID
         user_id = User.decode_token(access_token)
         if not isinstance(user_id, str):
-            return jsonify({'message' : 'access token is valid'})
             category = Category.query.filter_by(user_id=user_id).filter_by(id=category_id).first()
             category_name = category.name
+
+            return jsonify({'message' : category.name + " its category"})
 
             if not category:
                 return jsonify({'message' : 'No category found'})
