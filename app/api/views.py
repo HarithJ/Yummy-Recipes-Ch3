@@ -178,7 +178,7 @@ def get_one_category(category_id):
 
 
 @api.route('/category/<category_id>', methods=['PUT'])
-def change_category_name():
+def change_category_name(category_id):
     # Get the access token from the header
     auth_header = request.headers.get('Authorization')
     access_token = auth_header.split(" ")[1]
@@ -209,7 +209,7 @@ def change_category_name():
             return make_response(jsonify(response)), 401
 
 @api.route('/category/<category_id>', methods=['DELETE'])
-def delete_category():
+def delete_category(category_id):
     return jsonify({'message' : 'working'})
 
     # Get the access token from the header
