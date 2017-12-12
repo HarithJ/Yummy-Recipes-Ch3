@@ -221,6 +221,8 @@ def delete_category(category_id):
             category = Category.query.filter_by(user_id=user_id).filter_by(id=category_id).first()
             category_name = category.name
 
+            category = Category.query.filter_by(user_id=user_id).filter_by(id=category_id)
+
             if not category:
                 return jsonify({'message' : 'No category found'})
 
