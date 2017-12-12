@@ -224,8 +224,7 @@ def delete_category(category_id):
             if not category:
                 return jsonify({'message' : 'No category found'})
 
-            Category.query.filter_by(user_id=user_id).filter_by(id=category_id).delete()
-            db.session.commit()
+            db.session.delete(category)
 
             return jsonify({'message' : 'Category ' + category_name + ' deleted successfully'})
 
