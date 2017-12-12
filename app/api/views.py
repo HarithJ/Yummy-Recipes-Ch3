@@ -198,7 +198,7 @@ def change_category_name(category_id):
                 category.name = data['name']
                 db.session.commit()
 
-                return jsonify({'message' : 'Category ' + prev_name + 'changed to ' + category.name})
+                return jsonify({'message' : 'Category <' + prev_name + '> changed to <' + category.name + '>'})
 
         else:
             # user is not legit, so the payload is an error message
