@@ -210,11 +210,13 @@ def change_category_name():
 
 @api.route('/category/<category_id>', methods=['DELETE'])
 def delete_category():
+    return jsonify({'message' : 'working'})
+
     # Get the access token from the header
     auth_header = request.headers.get('Authorization')
     access_token = auth_header.split(" ")[1]
 
-    return jsonify({'message' : 'access token gotten'})
+
 
     if access_token:
         # Attempt to decode the token and get the User ID
