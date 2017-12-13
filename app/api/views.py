@@ -261,6 +261,8 @@ def add_or_get_recipe(category_id):
                     ingredients.append(data['ingredient{}'.format(ing_num)])
                     ing_num += 1
 
+                return jsonify({'message' : 'ingredients passed'})
+
                 if data['title']:
                     recipe = Recipe(
                         title = data['title'],
