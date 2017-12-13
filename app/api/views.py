@@ -253,15 +253,14 @@ def add_or_get_recipe(category_id):
                 return jsonify({'message' : 'category does not exists'})
 
             if request.method == 'POST':
-                data = request.get_json()
-
-                return jsonify({'message' : 'got data'})
-
                 ingredient = None
                 ingredients = []
                 ingredient_num = 1
                 while 'ingredient{}'.format(ingredient_num) in data:
                     ingredient = request.form['ingredient{}'.format(ingredient_num)]
+
+                    return jsonify({'message' : ingredient})
+
                     ingredients.append(ingredient)
 
                     ingredient_num += 1
