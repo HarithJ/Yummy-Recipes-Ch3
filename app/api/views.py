@@ -255,35 +255,18 @@ def add_or_get_recipe(category_id):
             if request.method == 'POST':
                 data = request.get_json()
 
-                ing_num = 1
+                ingredient = None
                 ingredients = []
-                while 'ingredient{}'.format(ing_num) in data:
-                    ingredient = Ingredient(data['ingredient{}'.ing_num])
+                ingredient_num = 1
+                while 'ingredient{}'.format(ingredient_num) in data:
+                    ingredient = request.form['ingredient{}'.format(ingredient_num)]
                     ingredients.append(ingredient)
 
-                    db.session.add(ingredients[ing_num])
-                    ing_num += 1
+                    ingredient_num += 1
 
-                recipe = Recipe(
-                    title = data['title'],
-                    category_id = category.id,
-                    recipe_ingredients = ingredients,
-                    directions = data['directions']
-                )
+                category.add_recipe(data['recipe_title'], ingredients, data['directions'], 'noImage')
 
-                return jsonify({'message' : recipe.title})
-
-                db.session.add(recipe)
-                db.session.commit()
-
-                response = {
-                    'id' : recipe.id,
-                    'title' : recipe.title,
-                    'ingredients' : ingredients,
-                    'directions' : recipe.directions
-                }
-
-                return jsonify(response)
+                return jsonify({'message' : 'recipe added successfully'})
 
             else:
                 return jsonify({'message' : 'not yet implemented'})
