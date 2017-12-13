@@ -4,7 +4,7 @@ from flask_login import login_required, login_user, logout_user, current_user
 
 from . import api
 from app import db
-from ..models import Category, User
+from ..models import Category, User, Recipe
 
 @api.route('/user', methods=['POST'])
 def create_user():
@@ -190,7 +190,7 @@ def change_category_name(category_id):
             category = Category.query.filter_by(user_id=user_id).filter_by(id=category_id).first()
 
             if not category:
-                return jsonify({'message' : category.name})
+                return jsonify({'message' : 'category does not exists'})
 
             data = request.get_json()
             if data['name']:
@@ -237,18 +237,71 @@ def delete_category(category_id):
             }
             return make_response(jsonify(response)), 401
 
-@api.route('/recipe', methods=['GET', 'POST'])
-def add_or_get_recipe():
+@api.route('/category/<category_id>/recipe', methods=['GET', 'POST'])
+def add_or_get_recipe(category_id):
+    # Get the access token from the header
+    auth_header = request.headers.get('Authorization')
+    access_token = auth_header.split(" ")[1]
+
+    if access_token:
+        # Attempt to decode the token and get the User ID
+        user_id = User.decode_token(access_token)
+        if not isinstance(user_id, str):
+            category = Category.query.filter_by(user_id=user_id).filter_by(id=category_id).first()
+
+            if not category:
+                return jsonify({'message' : 'category does not exists'})
+
+            if request.method == 'POST':
+                data = request.get_json()
+
+                ing_num = 1
+                ingredients = []
+                while data['ingredient{}'.format(ing_num)]:
+                    ingredients.append(data['ingredient{}'.format(ing_num)])
+                    ing_num += 1
+
+                if data['title']:
+                    recipe = Recipe(
+                        title = data['title'],
+                        category_id = category.id,
+                        recipe_ingredients = ingredients,
+                        directions = data['directions']
+                        )
+
+                    db.session.add(recipe)
+                    db.session.commit()
+
+                    response = {
+                        'id' : recipe.id,
+                        'title' : recipe.title,
+                        'ingredients' : ingredients,
+                        'directions' : recipe.directions
+                    }
+
+                    return jsonify(response)
+
+            else:
+                return jsonify({'message' : 'not yet implemented'})
+
+        else:
+            # user is not legit, so the payload is an error message
+            message = user_id
+            response = {
+                'message': message
+            }
+            return make_response(jsonify(response)), 401
+
     return ''
 
 @api.route('/recipe/<recipe_id>', methods=['GET'])
 def get_one_recipe(recipe_id):
-    return ''
+    return jsonify({'message' : 'not yet implemented'})
 
 @api.route('/recipe/<recipe_id>', methods=['PUT'])
 def change_recipe(recipe_id):
-    return ''
+    return jsonify({'message' : 'not yet implemented'})
 
 @api.route('/recipe/<recipe_id>', methods=['DELETE'])
 def delete_recipe(recipe_id):
-    return ''
+    return jsonify({'message' : 'not yet implemented'})
