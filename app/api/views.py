@@ -253,6 +253,8 @@ def add_or_get_recipe(category_id):
                 return jsonify({'message' : 'category does not exists'})
 
             if request.method == 'POST':
+                data = request.get_json()
+
                 ingredient = None
                 ingredients = []
                 ingredient_num = 1
