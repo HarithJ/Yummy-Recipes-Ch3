@@ -264,7 +264,7 @@ def add_or_get_recipe(category_id):
 
                     ingredient_num += 1
 
-                category.add_recipe(data['recipe_title'], ingredients, data['directions'], 'noImage')
+                category.add_recipe(data['title'], ingredients, data['directions'], 'noImage')
 
                 return jsonify({'message' : 'recipe added successfully'})
 
