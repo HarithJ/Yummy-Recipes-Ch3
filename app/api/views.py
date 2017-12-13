@@ -260,12 +260,9 @@ def add_or_get_recipe(category_id):
                 ingredient_num = 1
                 while 'ingredient{}'.format(ingredient_num) in data:
                     ingredient = data['ingredient{}'.format(ingredient_num)]
-
                     ingredients.append(ingredient)
 
                     ingredient_num += 1
-
-                return jsonify({'message' : ingredients})
 
                 category.add_recipe(data['recipe_title'], ingredients, data['directions'], 'noImage')
 
