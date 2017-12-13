@@ -261,27 +261,26 @@ def add_or_get_recipe(category_id):
                     ingredients.append(data['ingredient{}'.format(ing_num)])
                     ing_num += 1
 
-                return jsonify({'message' : ingredients})
+                recipe = Recipe(
+                    title = data['title'],
+                    category_id = category.id,
+                    recipe_ingredients = ingredients,
+                    directions = data['directions']
+                )
 
-                if data['title']:
-                    recipe = Recipe(
-                        title = data['title'],
-                        category_id = category.id,
-                        recipe_ingredients = ingredients,
-                        directions = data['directions']
-                        )
+                return jsonify({'message' : recipe.title})
 
-                    db.session.add(recipe)
-                    db.session.commit()
+                db.session.add(recipe)
+                db.session.commit()
 
-                    response = {
-                        'id' : recipe.id,
-                        'title' : recipe.title,
-                        'ingredients' : ingredients,
-                        'directions' : recipe.directions
-                    }
+                response = {
+                    'id' : recipe.id,
+                    'title' : recipe.title,
+                    'ingredients' : ingredients,
+                    'directions' : recipe.directions
+                }
 
-                    return jsonify(response)
+                return jsonify(response)
 
             else:
                 return jsonify({'message' : 'not yet implemented'})
