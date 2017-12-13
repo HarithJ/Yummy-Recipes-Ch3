@@ -258,7 +258,10 @@ def add_or_get_recipe(category_id):
                 ing_num = 1
                 ingredients = []
                 while 'ingredient{}'.format(ing_num) in data:
-                    ingredients.append(data['ingredient{}'.format(ing_num)])
+                    ingredient = Ingredient(data['ingredient{}'.ing_num])
+                    ingredients.append(ingredient)
+
+                    db.session.add(ingredients[ing_num])
                     ing_num += 1
 
                 recipe = Recipe(
