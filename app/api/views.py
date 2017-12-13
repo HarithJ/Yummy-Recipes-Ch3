@@ -259,9 +259,7 @@ def add_or_get_recipe(category_id):
                 ingredients = []
                 ingredient_num = 1
                 while 'ingredient{}'.format(ingredient_num) in data:
-                    ingredient = request.form['ingredient{}'.format(ingredient_num)]
-
-                    return jsonify({'message' : ingredient})
+                    ingredient = data['ingredient{}'.format(ingredient_num)]
 
                     ingredients.append(ingredient)
 
