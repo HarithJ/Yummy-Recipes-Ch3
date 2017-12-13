@@ -257,7 +257,7 @@ def add_or_get_recipe(category_id):
 
                 ing_num = 1
                 ingredients = []
-                while data['ingredient{}'.format(ing_num)]:
+                while 'ingredient{}'.format(ingredient_num) in data:
                     ingredients.append(data['ingredient{}'.format(ing_num)])
                     ing_num += 1
 
