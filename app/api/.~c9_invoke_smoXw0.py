@@ -255,6 +255,8 @@ def add_or_get_recipe(category_id):
             if request.method == 'POST':
                 data = request.get_json()
 
+                return jsonify({'message' : 'got data'})
+
                 ingredient = None
                 ingredients = []
                 ingredient_num = 1
