@@ -269,7 +269,27 @@ def add_or_get_recipe(category_id):
                 return jsonify({'message' : 'recipe added successfully'})
 
             else:
-                return jsonify({'message' : 'not yet implemented'})
+                recipes = category.recipe
+
+                output = []
+
+                for recipe in recipes:
+                    recipe_data = {}
+
+                    recipe_data['id'] = recipe.id
+                    recipe_data['title'] = recipe.title
+
+                    ing_num = 1
+                    for ingredient in recipe.recipe_ingredients:
+                        recipe_data['ingredient{}'.format(ing_num)] = ingredient
+                        ing_num += 1
+
+                    recipe_data['directions'] = recipe.directions
+
+                    output.append(recipe_data)
+
+                return jsonify({'recipes' : output})
+
 
         else:
             # user is not legit, so the payload is an error message
