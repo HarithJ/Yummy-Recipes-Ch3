@@ -273,6 +273,8 @@ def add_or_get_recipe(category_id):
 
                 output = []
 
+                return jsonify({'recipe' : recipe[0].title})
+
                 for recipe in recipes:
                     recipe_data = {}
 
