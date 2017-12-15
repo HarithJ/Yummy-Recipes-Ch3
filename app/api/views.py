@@ -281,8 +281,7 @@ def add_or_get_recipe(category_id):
 
                     ing_num = 1
                     for ingredient in recipe.recipe_ingredients:
-                        recipe_data['ingredient{}'.format(ing_num)] = ingredient
-                        return jsonify({'msg': ingredient})
+                        recipe_data['ingredient{}'.format(ing_num)] = ingredient.ing
                         ing_num += 1
 
                     recipe_data['directions'] = recipe.directions
