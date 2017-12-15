@@ -341,6 +341,35 @@ def get_one_recipe(category_id, recipe_id):
 def change_recipe(recipe_id):
     return jsonify({'message' : 'not yet implemented'})
 
-@api.route('/recipe/<recipe_id>', methods=['DELETE'])
-def delete_recipe(recipe_id):
-    return jsonify({'message' : 'not yet implemented'})
+@api.route('/category/<category_id>/recipe/<recipe_id>', methods=['DELETE'])
+def delete_recipe(category_id, recipe_id):
+    # Get the access token from the header
+    auth_header = request.headers.get('Authorization')
+    access_token = auth_header.split(" ")[1]
+
+    if access_token:
+        # Attempt to decode the token and get the User ID
+        user_id = User.decode_token(access_token)
+        if not isinstance(user_id, str):
+            category = Category.query.filter_by(user_id=user_id).filter_by(id=category_id).first()
+
+            if not category:
+                return jsonify({'message' : 'category does not exists'})
+
+            recipe = Recipe.query.filter_by(category_id=category.id).filter_by(id=recipe_id).first()
+
+            if not recipe:
+                return jsonify({'message' : 'recipe does not exists'})
+
+            db.session.delete(recipe)
+            db.session.commit()
+
+            return jsonify({'message' : 'Recipe deleted successfully'})
+
+        else:
+            # user is not legit, so the payload is an error message
+            message = user_id
+            response = {
+                'message': message
+            }
+            return make_response(jsonify(response)), 401
