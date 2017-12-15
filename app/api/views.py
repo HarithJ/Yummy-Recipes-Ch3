@@ -299,11 +299,43 @@ def add_or_get_recipe(category_id):
             }
             return make_response(jsonify(response)), 401
 
-    return ''
+    else:
+        return jsonify({'message' : 'please provide access token'})
 
-@api.route('/recipe/<recipe_id>', methods=['GET'])
+@api.route('/category/<category_id>/recipe/<recipe_id>', methods=['GET'])
 def get_one_recipe(recipe_id):
-    return jsonify({'message' : 'not yet implemented'})
+    # Get the access token from the header
+    auth_header = request.headers.get('Authorization')
+    access_token = auth_header.split(" ")[1]
+
+    if access_token:
+        # Attempt to decode the token and get the User ID
+        user_id = User.decode_token(access_token)
+        if not isinstance(user_id, str):
+            category = Category.query.filter_by(user_id=user_id).filter_by(id=category_id).first()
+
+            if not category:
+                return jsonify({'message' : 'category does not exists'})
+
+            recipe = Recipe.query.filter_by(category_id=category.id).filter_by(id=recipe_id).first()
+
+            if not recipe:
+                return jsonify({'message' : 'recipe does not exists'})
+
+            recipe_data = {}
+
+            recipe_data['id'] = recipe.id
+            recipe_data['title'] = recipe.title
+
+            ing_num = 1
+            for ingredient in recipe.recipe_ingredients:
+                recipe_data['ingredient{}'.format(ing_num)] = ingredient.ing
+                ing_num += 1
+
+            recipe_data['directions'] = recipe.directions
+
+            return jsonify(recipe_data)
+
 
 @api.route('/recipe/<recipe_id>', methods=['PUT'])
 def change_recipe(recipe_id):
