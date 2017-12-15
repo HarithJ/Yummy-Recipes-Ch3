@@ -303,7 +303,7 @@ def add_or_get_recipe(category_id):
         return jsonify({'message' : 'please provide access token'})
 
 @api.route('/category/<category_id>/recipe/<recipe_id>', methods=['GET'])
-def get_one_recipe(recipe_id):
+def get_one_recipe(category_id, recipe_id):
     # Get the access token from the header
     auth_header = request.headers.get('Authorization')
     access_token = auth_header.split(" ")[1]
