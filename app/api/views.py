@@ -269,7 +269,7 @@ def add_or_get_recipe(category_id):
                 return jsonify({'message' : 'recipe added successfully'})
 
             else:
-                recipes = category.recipe
+                recipes = category.category_recipes
 
                 output = []
 
