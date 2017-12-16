@@ -70,7 +70,7 @@ class Category(db.Model):
     def edit_recipe(self, *args, **kwargs):
         edit_this = None
         if 'id' in kwargs:
-            edit_this = Recipe.query.filter_by(find_using=kwargs['id']).filter_by(category_id=self.id).first()
+            edit_this = Recipe.query.filter_by(id=kwargs['id']).filter_by(category_id=self.id).first()
         else:
             edit_this = Recipe.query.filter_by(title=kwargs['prev_title']).filter_by(category_id=self.id).first()
 
