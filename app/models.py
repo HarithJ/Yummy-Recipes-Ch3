@@ -68,19 +68,18 @@ class Category(db.Model):
         return self.category_recipes.all()
 
     def edit_recipe(self, *args, **kwargs):
-        find_using = None
+        edit_this = None
         if 'id' in kwargs:
-            find_using = 'id'
+            edit_this = Recipe.query.filter_by(find_using=kwargs['id']).filter_by(category_id=self.id).first()
         else:
-            find_using = 'title'
+            edit_this = Recipe.query.filter_by(title=kwargs['prev_title']).filter_by(category_id=self.id).first()
 
         print("**********************************")
         print("**********************************")
-        print (find_using)
-        print('title' in kwargs)
+        print (edit_this.title)
+        print('title' in args)
         print("************************************")
         print("************************************")
-        edit_this = Recipe.query.filter_by(find_using=id if find_using==id else kwargs['prev_title']).filter_by(category_id=self.id).first()
 
         if 'ingredients' in kwargs:
             edit_this.edit_ingredients(kwargs['ingredients'])
