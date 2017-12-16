@@ -100,9 +100,8 @@ class Category(db.Model):
                     print("\n\n*************************************************")
                     print("found the extra ingredient")
                     print("*************************************************\n\n")
-                    ingredient = Ingredient(ing=value)
+                    ingredient = Ingredient(ing=value, recipe_id=edit_this.id)
                     db.session.add(ingredient)
-                    db.session.commit()
 
 
         db.session.commit()
