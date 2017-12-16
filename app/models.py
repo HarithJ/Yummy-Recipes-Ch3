@@ -36,6 +36,12 @@ class Recipe(db.Model):
 
     category_id = db.Column(db.Integer, db.ForeignKey("categories.id"))
 
+    def edit_ingredients(self, ingredients):
+
+        for i in range(len(ingredients)):
+            ingredients[i] = Ingredient(ing = ingredient[i])
+            db.session.add(ingredients[i])
+
 class Category(db.Model):
     __tablename__ = 'categories'
     __table_args__ = {'extend_existing': True}
@@ -61,17 +67,25 @@ class Category(db.Model):
     def get_recipes(self):
         return self.category_recipes.all()
 
-    def edit_recipe(self, prev_title, new_title, ingredients, directions, filename):
-        edit_this = Recipe.query.filter_by(title=prev_title).filter_by(category_id=self.id).first()
+    def edit_recipe(self, *args, **kwargs):
+        find_using = None
+        if 'id' in kwargs:
+            find_using = 'id'
+        else:
+            find_using = 'title'
+        edit_this = Recipe.query.filter_by(find_using=id if find_using==id else kwargs['prev_title']).filter_by(category_id=self.id).first()
 
-        for i in range(len(ingredients)):
-            ingredients[i] = Ingredient(ing=ingredients[i])
-            db.session.add(ingredients[i])
+        if 'ingredients' in kwargs:
+            edit_this.edit_ingredients(kwargs['ingredients'])
 
-        edit_this.title = new_title
-        edit_this.recipe_ingredients = ingredients
-        edit_this.directions = directions
-        edit_this.filename = filename
+        if 'new_title' in kwargs:
+            edit_this.title = kwargs['new_title']
+
+        if 'directions' in kwargs:
+            edit_this.directions = kwargs['directions']
+
+        if 'filename' in kwargs:
+            edit_this.filename = kwargs['filename']
 
         db.session.commit()
 
