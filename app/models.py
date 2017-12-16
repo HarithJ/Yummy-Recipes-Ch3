@@ -81,17 +81,17 @@ class Category(db.Model):
         print("************************************")
         print("************************************")
 
-        if 'ingredients' in kwargs:
-            edit_this.edit_ingredients(kwargs['ingredients'])
+        if 'ingredients' in data:
+            edit_this.edit_ingredients(data['ingredients'])
 
-        if 'new_title' in kwargs:
-            edit_this.title = kwargs['new_title']
+        if 'title' in data:
+            edit_this.title = data['title']
 
-        if 'directions' in kwargs:
-            edit_this.directions = kwargs['directions']
+        if 'directions' in data:
+            edit_this.directions = data['directions']
 
-        if 'filename' in kwargs:
-            edit_this.filename = kwargs['filename']
+        if 'filename' in data:
+            edit_this.filename = data['filename']
 
         db.session.commit()
 
