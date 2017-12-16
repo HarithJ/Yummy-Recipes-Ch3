@@ -87,18 +87,9 @@ class Category(db.Model):
             data.pop('filename')
 
         if data:
-            print("\n\n*************************************************")
-            print("data is there")
-            print("*************************************************\n\n")
-
             ing_num = 1
             for ingredient in edit_this.recipe_ingredients:
                 if 'ingredient{}'.format(ing_num) in data:
-
-                    print("\n\n*************************************************")
-                    print("found the recipe")
-                    print("*************************************************\n\n")
-
                     ingredient.ing = data['ingredient{}'.format(ing_num)]
                     data.pop('ingredient{}'.format(ing_num))
                 ing_num += 1
@@ -106,6 +97,9 @@ class Category(db.Model):
         if data:
             for key, value in data.items():
                 if 'ingredient' in key:
+                    print("\n\n*************************************************")
+                    print("found the extra ingredient")
+                    print("*************************************************\n\n")
                     ingredient = Ingredient(ing=value)
                     db.session.add(ingredient)
 
