@@ -102,6 +102,7 @@ class Category(db.Model):
                     print("*************************************************\n\n")
                     ingredient = Ingredient(ing=value)
                     db.session.add(ingredient)
+                    db.session.commit()
 
 
         db.session.commit()
