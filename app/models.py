@@ -73,6 +73,8 @@ class Category(db.Model):
             find_using = 'id'
         else:
             find_using = 'title'
+
+        print (find_using)
         edit_this = Recipe.query.filter_by(find_using=id if find_using==id else kwargs['prev_title']).filter_by(category_id=self.id).first()
 
         if 'ingredients' in kwargs:
