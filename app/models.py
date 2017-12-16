@@ -54,7 +54,7 @@ class Category(db.Model):
 
     def add_recipe(self, recipe_title, ingredients, directions, filename):
         for i in range(len(ingredients)):
-            ingredients[i] = Ingredient(ing=ingredients[i])
+            ingredients[i] = Ingredient(ing_num = 'ingredient{}'.format(i), ing=ingredients[i])
             db.session.add(ingredients[i])
 
         recipe = Recipe(title = recipe_title, recipe_ingredients = ingredients, directions = directions, filename = filename)
@@ -74,24 +74,32 @@ class Category(db.Model):
         else:
             edit_this = Recipe.query.filter_by(title=kwargs['prev_title']).filter_by(category_id=self.id).first()
 
-        print("**********************************")
-        print("**********************************")
-        print (edit_this.title)
-        print('title' in data)
-        print("************************************")
-        print("************************************")
-
-        if 'ingredients' in data:
-            edit_this.edit_ingredients(data['ingredients'])
-
         if 'title' in data:
             edit_this.title = data['title']
+            data.pop('title')
 
         if 'directions' in data:
             edit_this.directions = data['directions']
+            data.pop('directions')
 
         if 'filename' in data:
             edit_this.filename = data['filename']
+            data.pop('filename')
+
+        if data:
+            ing_num = 1
+            for ingredient in edit_this.recipe_ingredients:
+                if 'ingredient{}'.format(ing_num) in data:
+                    ingredient.ing = data['ingredient{}'.format(ing_num)]
+                    data.pop('ingredient{}'.format(ing_num))
+                    ing_num += 1
+
+        if data:
+            for key, value in data.items():
+                if 'ingredient' in key:
+                    ingredient = Ingredient(ing=value)
+                    db.session.add(ingredient)
+
 
         db.session.commit()
 
