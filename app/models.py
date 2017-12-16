@@ -101,7 +101,7 @@ class Category(db.Model):
 
                     ingredient.ing = data['ingredient{}'.format(ing_num)]
                     data.pop('ingredient{}'.format(ing_num))
-                    ing_num += 1
+                ing_num += 1
 
         if data:
             for key, value in data.items():
