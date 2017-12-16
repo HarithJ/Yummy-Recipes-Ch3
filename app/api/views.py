@@ -364,7 +364,7 @@ def change_recipe(category_id, recipe_id):
 
             category.edit_recipe(data, id=recipe_id)
 
-            return jsonify({'message : Edited successfully'})
+            return jsonify({'message' : 'Edited successfully'})
 
         else:
             # user is not legit, so the payload is an error message

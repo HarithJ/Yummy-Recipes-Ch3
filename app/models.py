@@ -67,7 +67,7 @@ class Category(db.Model):
     def get_recipes(self):
         return self.category_recipes.all()
 
-    def edit_recipe(self, *args, **kwargs):
+    def edit_recipe(self, data, *args, **kwargs):
         edit_this = None
         if 'id' in kwargs:
             edit_this = Recipe.query.filter_by(id=kwargs['id']).filter_by(category_id=self.id).first()
@@ -77,7 +77,7 @@ class Category(db.Model):
         print("**********************************")
         print("**********************************")
         print (edit_this.title)
-        print('title' in args)
+        print('title' in data)
         print("************************************")
         print("************************************")
 
