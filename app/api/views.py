@@ -125,7 +125,7 @@ def add_or_get_category():
 
             else:
                 #set the limit if it has been provided by the user
-                lim = request.args.get('limit')
+                lim = request.args.get('limit', None)
                 #set the offset if the user provided
                 off= request.args.get('offset', 0)
 
