@@ -125,9 +125,9 @@ def add_or_get_category():
 
             else:
                 #set the limit if it has been provided by the user
-                lim = request.get.args('limit')
+                lim = request.args.get('limit')
                 #set the offset if the user provided
-                off= request.get.args('offset', 0)
+                off= request.args.get('offset', 0)
 
                 if lim:
                     categories = Category.query.filter_by(user_id=user_id).limit(lim).offset(off).all()
