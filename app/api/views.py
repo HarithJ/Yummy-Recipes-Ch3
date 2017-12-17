@@ -124,7 +124,15 @@ def add_or_get_category():
                     return jsonify(response)
 
             else:
-                categories = Category.query.filter_by(user_id=user_id).all()
+                #set the limit if it has been provided by the user
+                lim = request.get.args('limit')
+                #set the offset if the user provided
+                off= request.get.args('offset', 0)
+
+                if lim:
+                    categories = Category.query.filter_by(user_id=user_id).limit(lim).offset(off).all()
+                else
+                    categories = Category.query.filter_by(user_id=user_id).all()
 
                 output = []
 
