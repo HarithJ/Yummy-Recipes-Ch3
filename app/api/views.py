@@ -131,7 +131,7 @@ def add_or_get_category():
 
                 if lim:
                     categories = Category.query.filter_by(user_id=user_id).limit(lim).offset(off).all()
-                else
+                else:
                     categories = Category.query.filter_by(user_id=user_id).all()
 
                 output = []
