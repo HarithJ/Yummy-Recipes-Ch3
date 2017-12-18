@@ -134,6 +134,11 @@ def add_or_get_category():
                 else:
                     categories = Category.query.filter_by(user_id=user_id).all()
 
+                name = request.args.get('q', None)
+
+                if name:
+                    recipes = Recipe.query.filter_by(category_id=category_id).filter_by(name=name).all()
+
                 output = []
 
                 for category in categories:
@@ -277,7 +282,20 @@ def add_or_get_recipe(category_id):
                 return jsonify({'message' : 'recipe added successfully'})
 
             else:
-                recipes = category.category_recipes
+                #set the limit if it has been provided by the user
+                lim = request.args.get('limit', None)
+                #set the offset if the user provided
+                off= request.args.get('offset', 0)
+
+                if lim:
+                    recipes = Recipe.query.filter_by(category_id=category_id).limit(lim).offset(off).all()
+                else:
+                    recipes = category.category_recipes
+
+                title = request.args.get('q', None)
+
+                if title:
+                    recipes = Recipe.query.filter_by(category_id=category_id).filter_by(title=title).all()
 
                 output = []
 

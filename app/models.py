@@ -36,12 +36,6 @@ class Recipe(db.Model):
 
     category_id = db.Column(db.Integer, db.ForeignKey("categories.id"))
 
-    def edit_ingredients(self, ingredients):
-
-        for i in range(len(ingredients)):
-            ingredients[i] = Ingredient(ing = ingredient[i])
-            db.session.add(ingredients[i])
-
 class Category(db.Model):
     __tablename__ = 'categories'
     __table_args__ = {'extend_existing': True}
@@ -97,9 +91,6 @@ class Category(db.Model):
         if data:
             for key, value in data.items():
                 if 'ingredient' in key:
-                    print("\n\n*************************************************")
-                    print("found the extra ingredient")
-                    print("*************************************************\n\n")
                     ingredient = Ingredient(ing=value, recipe_id=edit_this.id)
                     db.session.add(ingredient)
 
