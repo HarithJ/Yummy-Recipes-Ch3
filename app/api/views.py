@@ -137,7 +137,7 @@ def add_or_get_category():
                 name = request.args.get('q', None)
 
                 if name:
-                    recipes = Recipe.query.filter_by(user_id=user_id).filter_by(name=name).all()
+                    categories = Category.query.filter_by(user_id=user_id).filter_by(name=name).all()
 
                 output = []
 
