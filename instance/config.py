@@ -2,10 +2,12 @@ import os
 
 class Config(object):
     """Parent configuration class."""
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
     DEBUG = False
     CSRF_ENABLED = True
     SECRET = os.getenv('p9Bv<3Eid9%$i01')
     SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
+    UPLOAD_FOLDER = 'designs/UI/uploads/'
 
 class DevelopmentConfig(Config):
     """Configurations for Development."""
