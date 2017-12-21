@@ -48,7 +48,7 @@ class Category(db.Model):
 
     def add_recipe(self, recipe_title, ingredients, directions, filename):
         for i in range(len(ingredients)):
-            ingredients[i] = Ingredient(ing_num = 'ingredient{}'.format(i), ing=ingredients[i])
+            ingredients[i] = Ingredient(ing=ingredients[i])
             db.session.add(ingredients[i])
 
         recipe = Recipe(title = recipe_title, recipe_ingredients = ingredients, directions = directions, filename = filename)
@@ -185,7 +185,7 @@ class User(UserMixin, db.Model):
         try:
             # set up a payload with an expiration time
             payload = {
-                'exp': datetime.utcnow() + timedelta(minutes=5),
+                'exp': datetime.utcnow() + timedelta(hours=5),
                 'iat': datetime.utcnow(),
                 'sub': user_id
             }
