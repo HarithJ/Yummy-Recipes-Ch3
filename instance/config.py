@@ -5,7 +5,7 @@ class Config(object):
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     DEBUG = False
     CSRF_ENABLED = True
-    SECRET = os.getenv('p9Bv<3Eid9%$i01')
+    SECRET_KEY = 'p9Bv<3Eid9%$i01'
     SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
     UPLOAD_FOLDER = 'designs/UI/uploads/'
 
