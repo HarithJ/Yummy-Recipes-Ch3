@@ -3,11 +3,10 @@ from flask import Flask, flash, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_required
 from flask_migrate import Migrate
-from flask_restplus import Api
 import re
 
 # local imports
-from instance.config import app_config
+from config import app_config
 
 def validate_input(input_str):
     if re.match('^\s', input_str) or input_str == '':
@@ -18,6 +17,7 @@ def validate_input(input_str):
 db = SQLAlchemy()
 
 login_manager = LoginManager()
+
 
 def create_app(config_name):
     app = Flask(__name__, static_folder='../designs/UI', template_folder='../designs/UI', instance_relative_config=True)
@@ -44,7 +44,7 @@ def create_app(config_name):
     from .recipes import recipes as recipes_blueprint
     app.register_blueprint(recipes_blueprint)
 
-    from .api import blueprint as api_blueprint
+    from .api import api as api_blueprint
     app.register_blueprint(api_blueprint, url_prefix='/api/v1.0')
 
     return app
