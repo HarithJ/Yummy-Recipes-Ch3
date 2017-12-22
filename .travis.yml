@@ -5,12 +5,14 @@ python:
 services:
   - postgresql
 
+
+before_script:
+  - psql -c 'CREATE DATABASE travisdb' -U postgres
+
 #set environment variables
 env:
     - APP_SETTINGS=development
-
-before_script:
-  - cp config/database.yml.travis config/database.yml
+    - DATABASE_URL=postgresql://postgres:@localhost:5432/travisdb
 
 # command to run tests
 script:
