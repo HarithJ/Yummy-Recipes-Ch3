@@ -4,6 +4,7 @@ python:
 
 # command to run tests
 script:
+    - APP_SETTINGS=development
     - python manage.py test
 #    - python manage.py test --exe --with-coverage --cover-package=test_webapp
 #    - coveralls
