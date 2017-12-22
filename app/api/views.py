@@ -1,6 +1,6 @@
 from flask import request
 from flask_login import login_required, login_user, logout_user, current_user
-from flask_restplus import Resource, fields, reqparse
+from flask_restplus import Resource, fields, abort
 
 from . import api
 from app import db
@@ -35,27 +35,27 @@ recipe_format = api.model('Recipe', {
 class Register(Resource):
     @api.expect(user_registration_format)
     def post(self):
-        post_data = api.payload
+        data = api.payload
 
-        user1 = User.query.filter_by(username=post_data['username']).first()
-        user2 = User.query.filter_by(email=post_data['email']).first()
+        user1 = User.query.filter_by(username=data['username']).first()
+        user2 = User.query.filter_by(email=data['email']).first()
 
 
         if user1 or user2:
-            return {'message' : 'user already exists.'}
+            abort(409, 'User already exists. Please login.')
 
 
-        user = User(email = post_data['email'],
-                    username = post_data['username'],
-                    first_name = post_data['first_name'],
-                    last_name = post_data['last_name'],
-                    password = post_data['password'])
+        user = User(email = data['email'],
+                    username = data['username'],
+                    first_name = data['first_name'],
+                    last_name = data['last_name'],
+                    password = data['password'])
 
         # add user to the database
         db.session.add(user)
         db.session.commit()
 
-        return {'message' : 'user created successfully'}
+        return {'message' : 'user created successfully'}, 201
 
 
 @api.route('/login')
@@ -78,10 +78,7 @@ class Login(Resource):
             }
             return response
 
-        response = {
-            'message': 'Invalid email or password, Please try again'
-        }
-        return response
+        abort(401, 'Invalid email or password, Please try again')
 
 
 @api.route('/logout')

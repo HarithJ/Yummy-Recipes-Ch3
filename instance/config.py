@@ -6,19 +6,19 @@ class Config(object):
     DEBUG = False
     CSRF_ENABLED = True
     SECRET_KEY = 'p9Bv<3Eid9%$i01'
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'postgresql://testuser:abc123@localhost:5432/testdb')
     UPLOAD_FOLDER = 'designs/UI/uploads/'
 
 class DevelopmentConfig(Config):
     """Configurations for Development."""
+
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = 'postgresql://testuser:abc123@localhost:5432/testdb'
 
 class TestingConfig(Config):
     """Configurations for Testing, with a separate test database."""
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = 'postgresql://testuser:abc123@localhost:5432/testdb'
     DEBUG = True
+    SQLALCHEMY_DATABASE_URI = 'postgresql://testuser:abc123@localhost:5432/testdb'
 
 class StagingConfig(Config):
     """Configurations for Staging."""
