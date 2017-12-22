@@ -2,9 +2,12 @@ language: python
 python:
     - 3.6
 
+#set environment variables
+env:
+    - APP_SETTINGS=development
+
 # command to run tests
 script:
-    - APP_SETTINGS=development
     - python manage.py test
 #    - python manage.py test --exe --with-coverage --cover-package=test_webapp
 #    - coveralls
