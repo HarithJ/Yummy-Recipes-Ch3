@@ -2,9 +2,15 @@ language: python
 python:
     - 3.6
 
+services:
+  - postgresql
+
 #set environment variables
 env:
     - APP_SETTINGS=development
+
+before_script:
+  - cp config/database.yml.travis config/database.yml
 
 # command to run tests
 script:
