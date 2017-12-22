@@ -7,12 +7,12 @@ services:
 
 
 before_script:
-  - psql -c 'CREATE DATABASE travisdb' -U postgres
+  - psql -c "CREATE DATABASE testdb;" -U postgres
+  - psql -c "CREATE USER testuser WITH PASSWORD 'abc123';" -U postgres
 
 #set environment variables
 env:
     - APP_SETTINGS=development
-    - DATABASE_URL=postgresql://postgres:@localhost:5432/travisdb
 
 # command to run tests
 script:
