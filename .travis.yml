@@ -17,8 +17,7 @@ env:
 # command to run tests
 script:
     - python manage.py test
+    - python manage.py test --exe --with-coverage --cover-package=test_webapp
+    - coveralls
 
-
-#    - python manage.py test --exe --with-coverage --cover-package=test_webapp
-#    - coveralls
 after_success: "coveralls"
