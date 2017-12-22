@@ -17,7 +17,6 @@ env:
 # command to run tests
 script:
     - python manage.py test
-    - python manage.py test --with-coverage
-    - coveralls
+    - nosetests --with-coverage --cover-package=app
 
 after_success: "coveralls"
