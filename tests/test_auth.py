@@ -72,7 +72,6 @@ class AuthTestCase(unittest.TestCase):
         self.assertEqual(
             result['message'], "Invalid email or password, Please try again")
 
-
 # Make the tests conveniently executable
 if __name__ == "__main__":
     unittest.main()

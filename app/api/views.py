@@ -88,10 +88,7 @@ class Logout(Resource):
         data = api.payload
 
         if current_user.is_anonymous:
-            response = {
-                'message' : 'You are not logged in.'
-            }
-            return response
+            abort(403, 'You are not logged in.')
 
         if data['email'] == current_user.email and current_user.verify_password(data['password']):
             logout_user()
