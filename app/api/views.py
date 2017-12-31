@@ -152,15 +152,12 @@ class CategoriesAddOrGet(Resource):
                         'created_by' : current_user.first_name
                     }
 
-                    return response
+                    return response, 201
 
             else:
                 # user is not legit, so the payload is an error message
                 message = user_id
-                response = {
-                    'message': message
-                }
-                return response
+                abort(400, 'message')
 
     @api.doc(security='apikey')
     def get(self):
@@ -177,8 +174,12 @@ class CategoriesAddOrGet(Resource):
                 #set the offset if the user provided
                 off= request.args.get('offset', 0)
 
-                if lim:
+                if lim and off:
                     categories = Category.query.filter_by(user_id=user_id).limit(lim).offset(off).all()
+                elif lim:
+                    categories = Category.query.filter_by(user_id=user_id).limit(lim).all()
+                elif off:
+                    categories = Category.query.filter_by(user_id=user_id).offset(off).all()
                 else:
                     categories = Category.query.filter_by(user_id=user_id).all()
 
@@ -186,6 +187,9 @@ class CategoriesAddOrGet(Resource):
 
                 if name:
                     categories = Category.query.filter_by(user_id=user_id).filter_by(name=name).all()
+
+                if name and not categories:
+                    abort(404, 'Not found')
 
                 output = []
 
