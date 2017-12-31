@@ -15,7 +15,7 @@ check50==2.2.1
 click==6.7
 coverage==4.4.2
 coveralls==1.2.0
-cs50==2.3.2
+cs50==2.3.3
 cssselect==1.0.1
 cssselect2==0.2.0
 decorator==4.1.2
@@ -81,7 +81,7 @@ python-dateutil==2.6.1
 python-editor==1.0.3
 python-magic==0.4.13
 pytz==2017.2
-render50==2.3.2
+render50==2.4.2
 requests==2.18.4
 requests-oauthlib==0.8.0
 six==1.10.0
