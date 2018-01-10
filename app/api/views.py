@@ -393,7 +393,7 @@ class RecipesGetOrAdd(Resource):
 
                 category.add_recipe(data['title'], ingredients, data['directions'], 'noImage')
 
-                return {'message' : 'recipe added successfully'}
+                return {'message' : 'recipe added successfully'}, 201
 
 
             else:
