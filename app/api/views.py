@@ -328,6 +328,8 @@ class RecipesGetOrAdd(Resource):
 
                 if lim:
                     recipes = Recipe.query.filter_by(category_id=category_id).limit(lim).offset(off).all()
+                elif off:
+                    recipes = Recipe.query.filter_by(category_id=category_id).offset(off).all()
                 else:
                     recipes = category.category_recipes
 

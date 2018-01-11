@@ -109,6 +109,79 @@ class RecipeTestCase(BaseTestCase):
         response = context.get('/api/v1.0/category/1/recipe', headers=dict(Authorization="Bearer " + token))
         self.assertEquals(response.status_code, 200)
 
-        # Extract recipes from the response
+        # Extract recipes from the response and check their number
         recipes = json.loads(response.data)['recipes']
         self.assertEqual(len(recipes), 5)
+
+    def test_get_limited_recipes(self):
+        """Test GET method on recipes with lim parameter"""
+        # get the token and context
+        token_and_context = self.get_token()
+        token = token_and_context['token']
+        context = token_and_context['context']
+
+        # Create 5 categories using create_category method, named category1 to category5
+        self.create_category(token=token, context=context, cat_num=5)
+
+        # create 5 recipes in category id 1;
+        # the helper function creates recipes in category id 1, if the arg is not provided
+        self.create_recipe(token, context, rec_num=5)
+
+        # call the link to get the response
+        response = context.get('/api/v1.0/category/1/recipe?limit=3', headers=dict(Authorization="Bearer " + token))
+        self.assertEquals(response.status_code, 200)
+
+        # Extract recipes from the response and check their number
+        recipes = json.loads(response.data)['recipes']
+        self.assertEqual(len(recipes), 3)
+
+    def test_offset_parameter_on_recipes(self):
+        """Test GET method on recipes with offset parameter"""
+        # get the token and context
+        token_and_context = self.get_token()
+        token = token_and_context['token']
+        context = token_and_context['context']
+
+        # Create 5 categories using create_category method, named category1 to category5
+        self.create_category(token=token, context=context, cat_num=5)
+
+        # create 5 recipes in category id 1;
+        # the helper function creates recipes in category id 1, if the arg is not provided
+        self.create_recipe(token, context, rec_num=5)
+
+        # call the link to get the response
+        response = context.get('/api/v1.0/category/1/recipe?offset=3', headers=dict(Authorization="Bearer " + token))
+        self.assertEquals(response.status_code, 200)
+
+        # Extract recipes from the response and:
+        # check number of recipes, it should be 2
+        # check that the id of first recipe is 4
+        recipes = json.loads(response.data)['recipes']
+        self.assertEqual(len(recipes), 2)
+        self.assertEquals(recipes[0]['id'], 4)
+
+    def test_offset_and_limit_parameter_on_recipes(self):
+        """Test GET method on recipes with offset parameter"""
+        # get the token and context
+        token_and_context = self.get_token()
+        token = token_and_context['token']
+        context = token_and_context['context']
+
+        # Create 5 categories using create_category method, named category1 to category5
+        self.create_category(token=token, context=context, cat_num=5)
+
+        # create 5 recipes in category id 1;
+        # the helper function creates recipes in category id 1, if the arg is not provided
+        self.create_recipe(token, context, rec_num=5)
+
+        # call the link to get the response
+        response = context.get('/api/v1.0/category/1/recipe?limit=1&offset=3', headers=dict(Authorization="Bearer " + token))
+        self.assertEquals(response.status_code, 200)
+
+        # Extract recipes from the response and:
+        # check number of recipes, it should be 1
+        # check that the id of recipe is 4
+        recipes = json.loads(response.data)['recipes']
+        self.assertEqual(len(recipes), 1)
+        self.assertEquals(recipes[0]['id'], 4)
+
