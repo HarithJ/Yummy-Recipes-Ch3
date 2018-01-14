@@ -83,19 +83,22 @@ class Category(db.Model):
         if data:
             ing_num = 1
             for ingredient in edit_this.recipe_ingredients:
-                if 'ingredient{}'.format(ing_num) in data:
-                    ingredient.ing = data['ingredient{}'.format(ing_num)]
-                    data.pop('ingredient{}'.format(ing_num))
+                ing = 'ingredient{}'.format(ing_num)
+                if ing in data:
+                    ingredient.ing = data[ing]
+                    data.pop(ing)
+                    db.session.commit()
                 ing_num += 1
-
+        """
         if data:
             for key, value in data.items():
                 if 'ingredient' in key:
                     ingredient = Ingredient(ing=value, recipe_id=edit_this.id)
                     db.session.add(ingredient)
 
-
         db.session.commit()
+
+        """
 
     def delete_recipe(self, recipe_title):
         delete_this = Recipe.query.filter_by(title=recipe_title).filter_by(category_id=self.id).first()

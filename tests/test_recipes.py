@@ -1,7 +1,7 @@
 import json
 
 from test_base import BaseTestCase
-from app.models import Recipe
+from app.models import Recipe, Ingredient
 
 class RecipeTestCase(BaseTestCase):
     """This class represents the testing for recipes"""
@@ -184,4 +184,113 @@ class RecipeTestCase(BaseTestCase):
         recipes = json.loads(response.data)['recipes']
         self.assertEqual(len(recipes), 1)
         self.assertEquals(recipes[0]['id'], 4)
+
+    def test_search_parameter_on_recipes(self):
+        """Test that the API can search through the recipes by recipe title,
+        when given 'q' parameter"""
+        # get the token and context
+        token_and_context = self.get_token()
+        token = token_and_context['token']
+        context = token_and_context['context']
+
+        # Create 5 categories using create_category method, named category1 to category5
+        self.create_category(token=token, context=context, cat_num=5)
+
+        # create 5 recipes in category id 1;
+        # the helper function creates recipes in category id 1, if the arg is not provided
+        self.create_recipe(token, context, title='Title to be searched')
+
+        # call the link to get the response
+        response = context.get('/api/v1.0/category/1/recipe?q=Title to be searched', headers=dict(Authorization="Bearer " + token))
+        self.assertEquals(response.status_code, 200)
+
+        # Extract recipes from the response and:
+        # check that the id of recipe is 4
+        recipes = json.loads(response.data)['recipes']
+        self.assertEquals(recipes[0]['title'], 'Title to be searched')
+
+    def test_get_one_recipe(self):
+        """Test that the API can get one recipe,
+        when provided with recipe id"""
+        # get the token and context
+        token_and_context = self.get_token()
+        token = token_and_context['token']
+        context = token_and_context['context']
+
+        # Create 5 categories using create_category method, named category1 to category5
+        self.create_category(token=token, context=context, cat_num=5)
+
+        # create 5 recipes in category id 1;
+        # the helper function creates recipes in category id 1, if the arg is not provided
+        self.create_recipe(token, context, rec_num=5)
+
+        # call the link to get the response
+        response = context.get('/api/v1.0/category/1/recipe/3', headers=dict(Authorization="Bearer " + token))
+        self.assertEquals(response.status_code, 200)
+
+        # Extract recipes from the response and:
+        # check that the id of recipe is 3
+        recipes = json.loads(response.data)
+        self.assertEquals(recipes['id'], 3)
+
+    def test_put_verb_on_recipe(self):
+        """Test that the API can get one recipe,
+        when provided with recipe id"""
+        # get the token and context
+        token_and_context = self.get_token()
+        token = token_and_context['token']
+        context = token_and_context['context']
+
+        # Create 5 categories using create_category method, named category1 to category5
+        self.create_category(token=token, context=context, cat_num=5)
+
+        # create 5 recipes in category id 1;
+        # the helper function creates recipes in category id 1, if the arg is not provided
+        self.create_recipe(token, context, rec_num=5)
+
+        # call the link to make the change and get the response
+        new_title = 'title changed'
+        new_ingredient = 'ingredient2 changed'
+        new_directions = 'directions changed'
+        form = {
+            'title' : new_title,
+            'ingredient1' : new_ingredient,
+            'directions' : new_directions
+            }
+        response = context.put('/api/v1.0/category/1/recipe/3', headers=dict(Authorization="Bearer " + token), data=json.dumps(form), content_type='application/json')
+        self.assertEquals(response.status_code, 200)
+
+        # get the third recipe and its ingredient and check its contents
+        recipe = Recipe.query.filter_by(category_id=1).filter_by(id=3).first()
+        ingredient = Ingredient.query.filter_by(recipe_id=3).filter_by(id=7).first()
+
+        self.assertEquals(recipe.title, new_title)
+        self.assertEquals(ingredient.ing, new_ingredient)
+        self.assertEquals(recipe.directions, new_directions)
+
+    def test_delete_verb_on_recipe(self):
+        """Test that the API can get one recipe,
+        when provided with recipe id"""
+        # get the token and context
+        token_and_context = self.get_token()
+        token = token_and_context['token']
+        context = token_and_context['context']
+
+        # Create 5 categories using create_category method, named category1 to category5
+        self.create_category(token=token, context=context, cat_num=5)
+
+        # create 5 recipes in category id 1;
+        # the helper function creates recipes in category id 1, if the arg is not provided
+        self.create_recipe(token, context, rec_num=5)
+
+        # call the link to delete the recipe
+        response = context.delete('/api/v1.0/category/1/recipe/3', headers=dict(Authorization="Bearer " + token))
+        self.assertEquals(response.status_code, 200)
+
+        # get the third recipe and its ingredient and check its contents
+        recipe = Recipe.query.filter_by(category_id=1).filter_by(id=3).first()
+
+        self.assertFalse(recipe)
+
+
 
