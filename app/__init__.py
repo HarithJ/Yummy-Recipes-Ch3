@@ -35,16 +35,11 @@ def create_app(config_name):
 
     from app import models
 
-    from .auth import auth as auth_blueprint
-    app.register_blueprint(auth_blueprint)
-
-    from .categories import categories as categories_blueprint
-    app.register_blueprint(categories_blueprint)
-
-    from .recipes import recipes as recipes_blueprint
-    app.register_blueprint(recipes_blueprint)
-
     from .api import blueprint as api_blueprint
     app.register_blueprint(api_blueprint, url_prefix='/api/v1.0')
+
+    @app.route('/')
+    def homepage():
+        return redirect('/api/v1.0')
 
     return app

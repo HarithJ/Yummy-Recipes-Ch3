@@ -44,7 +44,8 @@ class BaseTestCase(unittest.TestCase):
                 }
 
     def get_token(self):
-        """This helper method helps to register a test user, log him in
+        """
+        This helper method helps to register a test user, log him in
         and return back a dictionary that contains a token and the context.
         """
         self.register_user()
