@@ -1,17 +1,19 @@
+import re
+
 from flask import request
 from flask_login import login_required, login_user, logout_user, current_user
-from flask_restplus import Resource, fields, abort
+from flask_restplus import Resource, fields, abort, reqparse
 
 from . import api
 from app import db
 from ..models import Category, User, Recipe
 
 user_registration_format = api.model('UserRegistration', {
-    'first_name' : fields.String('Your first name.'),
-    'last_name' : fields.String('Your last name.'),
-    'username' : fields.String('User name.'),
-    'email' : fields.String('Your e-mail.'),
-    'password' : fields.String('Password.')
+    'first_name' : fields.String('Your first name'),
+    'last_name' : fields.String('Your last name'),
+    'username' : fields.String('User name'),
+    'email' : fields.String('Your e-mail'),
+    'password' : fields.String('Password')
 })
 
 user_basic_format = api.model('User', {
@@ -31,27 +33,60 @@ recipe_format = api.model('Recipe', {
     'directions' : fields.String('Directions to cook the recipe')
 })
 
+pagination_args = reqparse.RequestParser(bundle_errors=True)
+pagination_args.add_argument(
+    'q', type=str, help='Search parameter', location='query')
+
+pagination_args.add_argument(
+    'limit', type=int, help='Results per page', location='query')
+
+pagination_args.add_argument(
+    'offset', type=int, help='Starting point', location='query')
+
+def validation(string, email=False):
+    string = string.lstrip()
+    if email:
+        email_regex = re.compile(r"[^@]+@[^@]+\.[^@]+")
+        return email_regex.match(string)
+    else:
+        text_regex = re.compile(r'^[A-Za-z ]+$')
+        return text_regex.match(string)
+
+def validate_data(data):
+    for key, value in data.items():
+            if key == 'email':
+                response = validation(value, email=True)
+            elif 'password' in key:
+                break
+            else:
+                response = validation(value)
+
+            if not response:
+                abort(422, 'The {} you provided contains nothing or an invalid character'.format(key))
+
 @api.route('/register')
 class Register(Resource):
     @api.expect(user_registration_format)
     def post(self):
         data = api.payload
 
-        user1 = User.query.filter_by(username=data['username']).first()
-        user2 = User.query.filter_by(email=data['email']).first()
+        # Validate the input provided by the user
+        validate_data(data)
 
+        # check if the username or the email already exists in db
+        check_username = User.query.filter_by(username=data['username']).first()
+        check_email = User.query.filter_by(email=data['email']).first()
 
-        if user1 or user2:
+        if check_username or check_email:
             abort(409, 'User already exists. Please login.')
 
-
+        # create user and add him/her to the db
         user = User(email = data['email'],
                     username = data['username'],
                     first_name = data['first_name'],
                     last_name = data['last_name'],
                     password = data['password'])
 
-        # add user to the database
         db.session.add(user)
         db.session.commit()
 
@@ -63,6 +98,9 @@ class Login(Resource):
     @api.expect(user_basic_format)
     def post(self):
         data = api.payload
+
+        # Validate data
+        validate_data(data)
 
         user = User.query.filter_by(email=data['email']).first()
 
@@ -87,6 +125,9 @@ class Logout(Resource):
     def post(self):
         data = api.payload
 
+        # Validate data
+        validate_data(data)
+
         if current_user.is_anonymous:
             abort(403, 'You are not logged in.')
 
@@ -106,6 +147,9 @@ class Logout(Resource):
 class ResetPassword(Resource):
     def post(self):
         data = api.payload
+
+        # Validate data
+        validate_data(data)
 
         if current_user.is_anonymous:
             response = {
@@ -141,6 +185,10 @@ class CategoriesAddOrGet(Resource):
             if not isinstance(user_id, str):
                 # Go ahead and handle the request, the user is authenticated
                 data = request.get_json()
+
+                # Validate data
+                validate_data(data)
+
                 if data['name']:
                     category = Category(name = data['name'], user_id = user_id)
 
@@ -160,6 +208,7 @@ class CategoriesAddOrGet(Resource):
                 abort(400, 'message')
 
     @api.doc(security='apikey')
+    @api.expect(pagination_args)
     def get(self):
         # Get the access token from the header
         auth_header = request.headers.get('Authorization')
@@ -264,7 +313,7 @@ class CategoryFunctions(Resource):
                     category.name = data['name']
                     db.session.commit()
 
-                    return {'message' : 'Category <' + prev_name + '> changed to <' + category.name + '>'}
+                    return {'message' : 'Category ' + prev_name + ' changed to ' + category.name}
 
             else:
                 # user is not legit, so the payload is an error message
@@ -307,6 +356,7 @@ class CategoryFunctions(Resource):
 @api.route('/category/<category_id>/recipe')
 class RecipesGetOrAdd(Resource):
     @api.doc(security='apikey')
+    @api.expect(pagination_args)
     def get(self, category_id):
         # Get the access token from the header
         auth_header = request.headers.get('Authorization')
@@ -383,6 +433,9 @@ class RecipesGetOrAdd(Resource):
                     return {'message' : 'category does not exists'}
 
                 data = request.get_json()
+
+                # Validate data
+                validate_data(data)
 
                 ingredient = None
                 ingredients = []
