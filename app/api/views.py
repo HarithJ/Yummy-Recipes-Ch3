@@ -405,7 +405,7 @@ class RecipesGetOrAdd(Resource):
 
                     output.append(recipe_data)
 
-                return {'recipes' : output}
+                return {'{} - recipes'.format(category.name) : output}
 
             else:
                 # user is not legit, so the payload is an error message

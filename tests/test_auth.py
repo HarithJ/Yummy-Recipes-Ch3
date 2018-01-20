@@ -25,12 +25,12 @@ class AuthTestCase(unittest.TestCase):
             db.drop_all()
             db.create_all()
 
-    def test_user_registration(self):
+    def test_user_can_register_successfully(self):
         res = self.client().post('/api/v1.0/register', data=json.dumps(self.user), content_type='application/json')
 
         self.assertIn('user created successfully', str(res.data))
 
-    def test_user_login(self):
+    def test_user_can_login_successfully(self):
         reg_res = self.client().post('/api/v1.0/register', data=json.dumps(self.user), content_type='application/json')
         self.assertEqual(reg_res.status_code, 201)
 
@@ -44,7 +44,7 @@ class AuthTestCase(unittest.TestCase):
         self.assertEqual(login_res.status_code, 200)
         self.assertTrue(result['access_token'])
 
-    def test_already_registered_user(self):
+    def test_already_registered_user_cannot_register_again(self):
         res = self.client().post('/api/v1.0/register', data=json.dumps(self.user), content_type='application/json')
         self.assertEqual(res.status_code, 201)
         second_res = self.client().post('/api/v1.0/register', data=json.dumps(self.user), content_type='application/json')
@@ -54,7 +54,7 @@ class AuthTestCase(unittest.TestCase):
         result = json.loads(second_res.data.decode())
         self.assertEqual(result['message'], "User already exists. Please login.")
 
-    def test_non_registered_user_login(self):
+    def test_non_registered_user_cannot_login(self):
         """Test non registered users cannot login."""
         # define a dictionary to represent an unregistered user
         not_a_user = {
