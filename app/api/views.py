@@ -43,6 +43,33 @@ pagination_args.add_argument(
 pagination_args.add_argument(
     'offset', type=int, help='Starting point', location='query')
 
+def token_required(f):
+    def wrapper(*args, **kwargs):
+        # Get the access token from the header
+        auth_header = request.headers.get('Authorization')
+        if not auth_header:
+            abort(401, 'You have not yet provided a token')
+        elif auth_header.startswith("Bearer "):
+            access_token = auth_header.split(" ")[1]
+        else:
+            abort(400, "Make sure you have the word 'Bearer' before the token: 'Bearer TOKEN'")
+
+        if access_token:
+            # Attempt to decode the token and get the User ID
+            user_id = User.decode_token(access_token)
+            if isinstance(user_id, str):
+                # user is not legit, so the payload is an error message
+                message = user_id
+                response = {
+                    'message': message
+                }
+                return response
+
+            return f(*args, user_id=user_id, **kwargs)
+
+    return wrapper
+
+
 def validation(string, email=False):
     string = string.lstrip()
     if email:
@@ -174,395 +201,261 @@ class ResetPassword(Resource):
 class CategoriesAddOrGet(Resource):
     @api.doc(security='apikey')
     @api.expect(category_format)
-    def post(self):
-        # Get the access token from the header
-        auth_header = request.headers.get('Authorization')
-        access_token = auth_header.split(" ")[1]
+    @token_required
+    def post(self, **kwargs):
+        user_id = kwargs.get('user_id')
 
-        if access_token:
-            # Attempt to decode the token and get the User ID
-            user_id = User.decode_token(access_token)
-            if not isinstance(user_id, str):
-                # Go ahead and handle the request, the user is authenticated
-                data = request.get_json()
+        # Go ahead and handle the request, the user is authenticated
+        data = request.get_json()
 
-                # Validate data
-                validate_data(data)
+        # Validate data
+        validate_data(data)
 
-                if data['name']:
-                    category = Category(name = data['name'], user_id = user_id)
+        if data['name']:
+            category = Category(name = data['name'], user_id = user_id)
 
-                    db.session.add(category)
-                    db.session.commit()
+            db.session.add(category)
+            db.session.commit()
 
-                    response = {'id' : category.id,
-                        'category_name' : category.name,
-                        'created_by' : current_user.first_name
-                    }
+            response = {'id' : category.id,
+                'category_name' : category.name,
+                'created_by' : current_user.first_name
+            }
 
-                    return response, 201
-
-            else:
-                # user is not legit, so the payload is an error message
-                message = user_id
-                abort(400, 'message')
+            return response, 201
 
     @api.doc(security='apikey')
     @api.expect(pagination_args)
-    def get(self):
-        # Get the access token from the header
-        auth_header = request.headers.get('Authorization')
-        access_token = auth_header.split(" ")[1]
+    @token_required
+    def get(self, **kwargs):
+        user_id = kwargs.get('user_id')
 
-        if access_token:
-            # Attempt to decode the token and get the User ID
-            user_id = User.decode_token(access_token)
-            if not isinstance(user_id, str):
-                #set the limit if it has been provided by the user
-                lim = request.args.get('limit', None)
-                #set the offset if the user provided
-                off= request.args.get('offset', 0)
+        #set the limit if it has been provided by the user
+        lim = request.args.get('limit', None)
+        #set the offset if the user provided
+        off= request.args.get('offset', 0)
 
-                if lim and off:
-                    categories = Category.query.filter_by(user_id=user_id).limit(lim).offset(off).all()
-                elif lim:
-                    categories = Category.query.filter_by(user_id=user_id).limit(lim).all()
-                elif off:
-                    categories = Category.query.filter_by(user_id=user_id).offset(off).all()
-                else:
-                    categories = Category.query.filter_by(user_id=user_id).all()
+        if lim and off:
+            categories = Category.query.filter_by(user_id=user_id).limit(lim).offset(off).all()
+        elif lim:
+            categories = Category.query.filter_by(user_id=user_id).limit(lim).all()
+        elif off:
+            categories = Category.query.filter_by(user_id=user_id).offset(off).all()
+        else:
+            categories = Category.query.filter_by(user_id=user_id).all()
 
-                name = request.args.get('q', None)
+        name = request.args.get('q', None)
 
-                if name:
-                    categories = Category.query.filter_by(user_id=user_id).filter_by(name=name).all()
+        if name:
+            categories = Category.query.filter_by(user_id=user_id).filter_by(name=name).all()
 
-                if name and not categories:
-                    abort(404, 'Not found')
+        if name and not categories:
+            abort(404, 'Not found')
 
-                output = []
+        output = []
 
-                for category in categories:
-                    category_data = {}
-                    category_data['id'] = category.id
-                    category_data['Name'] = category.name
-                    output.append(category_data)
+        for category in categories:
+            category_data = {}
+            category_data['id'] = category.id
+            category_data['Name'] = category.name
+            output.append(category_data)
 
-                return {'categories' : output}
-
-            else:
-                # user is not legit, so the payload is an error message
-                message = user_id
-                response = {
-                    'message': message
-                }
-                return response
+        return {'categories' : output}
 
 
 @api.route('/category/<category_id>')
 class CategoryFunctions(Resource):
     @api.doc(security='apikey')
-    def get(self, category_id):
-        # Get the access token from the header
-        auth_header = request.headers.get('Authorization')
-        access_token = auth_header.split(" ")[1]
+    @token_required
+    def get(self, category_id, **kwargs):
+        user_id = kwargs.get('user_id')
+        category = Category.query.filter_by(user_id=user_id).filter_by(id=category_id).first()
 
-        if access_token:
-            # Attempt to decode the token and get the User ID
-            user_id = User.decode_token(access_token)
-            if not isinstance(user_id, str):
+        if not category:
+            return {'message' : 'No category found'}
 
-                category = Category.query.filter_by(user_id=user_id).filter_by(id=category_id).first()
+        category_data = {}
+        category_data['id'] = category.id
+        category_data['Name'] = category.name
 
-                if not category:
-                    return {'message' : 'No category found'}
-
-                category_data = {}
-                category_data['id'] = category.id
-                category_data['Name'] = category.name
-
-                return {'category': category_data}
-
-            else:
-                # user is not legit, so the payload is an error message
-                message = user_id
-                response = {
-                    'message': message
-                }
-                return response
+        return {'category': category_data}
 
     @api.doc(security='apikey')
     @api.expect(category_format)
-    def put(self, category_id):
-        # Get the access token from the header
-        auth_header = request.headers.get('Authorization')
-        access_token = auth_header.split(" ")[1]
+    @token_required
+    def put(self, category_id, **kwargs):
+        user_id = kwargs.get('user_id')
 
-        if access_token:
-            # Attempt to decode the token and get the User ID
-            user_id = User.decode_token(access_token)
-            if not isinstance(user_id, str):
-                category = Category.query.filter_by(user_id=user_id).filter_by(id=category_id).first()
+        category = Category.query.filter_by(user_id=user_id).filter_by(id=category_id).first()
 
-                if not category:
-                    return {'message' : 'category does not exists'}
+        if not category:
+            return {'message' : 'category does not exists'}
 
-                data = request.get_json()
-                if data['name']:
-                    prev_name = category.name
-                    category.name = data['name']
-                    db.session.commit()
+        data = request.get_json()
+        if data['name']:
+            prev_name = category.name
+            category.name = data['name']
+            db.session.commit()
 
-                    return {'message' : 'Category ' + prev_name + ' changed to ' + category.name}
-
-            else:
-                # user is not legit, so the payload is an error message
-                message = user_id
-                response = {
-                    'message': message
-                }
-                return response
+            return {'message' : 'Category ' + prev_name + ' changed to ' + category.name}
 
     @api.doc(security='apikey')
-    def delete(self, category_id):
-        # Get the access token from the header
-        auth_header = request.headers.get('Authorization')
-        access_token = auth_header.split(" ")[1]
+    @token_required
+    def delete(self, category_id, **kwargs):
+        user_id = kwargs.get('user_id')
+        category = Category.query.filter_by(user_id=user_id).filter_by(id=category_id).first()
+        category_name = category.name
 
-        if access_token:
-            # Attempt to decode the token and get the User ID
-            user_id = User.decode_token(access_token)
-            if not isinstance(user_id, str):
-                category = Category.query.filter_by(user_id=user_id).filter_by(id=category_id).first()
-                category_name = category.name
+        if not category:
+            return {'message' : 'No category found'}
 
-                if not category:
-                    return {'message' : 'No category found'}
+        db.session.delete(category)
+        db.session.commit()
 
-                db.session.delete(category)
-                db.session.commit()
-
-                return {'message' : 'Category ' + category_name + ' deleted successfully'}
-
-            else:
-                # user is not legit, so the payload is an error message
-                message = user_id
-                response = {
-                    'message': message
-                }
-                return response
-
+        return {'message' : 'Category ' + category_name + ' deleted successfully'}
 
 @api.route('/category/<category_id>/recipe')
 class RecipesGetOrAdd(Resource):
     @api.doc(security='apikey')
     @api.expect(pagination_args)
-    def get(self, category_id):
-        # Get the access token from the header
-        auth_header = request.headers.get('Authorization')
-        access_token = auth_header.split(" ")[1]
+    @token_required
+    def get(self, category_id, **kwargs):
+        user_id = kwargs.get('user_id')
 
-        if access_token:
-            # Attempt to decode the token and get the User ID
-            user_id = User.decode_token(access_token)
-            if not isinstance(user_id, str):
-                category = Category.query.filter_by(user_id=user_id).filter_by(id=category_id).first()
+        category = Category.query.filter_by(user_id=user_id).filter_by(id=category_id).first()
 
-                if not category:
-                    return {'message' : 'category does not exists'}
+        if not category:
+            return {'message' : 'category does not exists'}
 
-                #set the limit if it has been provided by the user
-                lim = request.args.get('limit', None)
-                #set the offset if the user provided
-                off= request.args.get('offset', 0)
+        #set the limit if it has been provided by the user
+        lim = request.args.get('limit', None)
+        #set the offset if the user provided
+        off= request.args.get('offset', 0)
 
-                if lim:
-                    recipes = Recipe.query.filter_by(category_id=category_id).limit(lim).offset(off).all()
-                elif off:
-                    recipes = Recipe.query.filter_by(category_id=category_id).offset(off).all()
-                else:
-                    recipes = category.category_recipes
+        if lim:
+            recipes = Recipe.query.filter_by(category_id=category_id).limit(lim).offset(off).all()
+        elif off:
+            recipes = Recipe.query.filter_by(category_id=category_id).offset(off).all()
+        else:
+            recipes = category.category_recipes
 
-                title = request.args.get('q', None)
+        title = request.args.get('q', None)
 
-                if title:
-                    recipes = Recipe.query.filter_by(category_id=category_id).filter_by(title=title).all()
+        if title:
+            recipes = Recipe.query.filter_by(category_id=category_id).filter_by(title=title).all()
 
-                output = []
+        output = []
 
-                for recipe in recipes:
-                    recipe_data = {}
+        for recipe in recipes:
+            recipe_data = {}
 
-                    recipe_data['id'] = recipe.id
-                    recipe_data['title'] = recipe.title
+            recipe_data['id'] = recipe.id
+            recipe_data['title'] = recipe.title
 
-                    ing_num = 1
-                    for ingredient in recipe.recipe_ingredients:
-                        recipe_data['ingredient{}'.format(ing_num)] = ingredient.ing
-                        ing_num += 1
+            ing_num = 1
+            for ingredient in recipe.recipe_ingredients:
+                recipe_data['ingredient{}'.format(ing_num)] = ingredient.ing
+                ing_num += 1
 
-                    recipe_data['directions'] = recipe.directions
+            recipe_data['directions'] = recipe.directions
 
-                    output.append(recipe_data)
+            output.append(recipe_data)
 
-                return {'{} - recipes'.format(category.name) : output}
-
-            else:
-                # user is not legit, so the payload is an error message
-                message = user_id
-                response = {
-                    'message': message
-                }
-                return response
-
+        return {'{} - recipes'.format(category.name) : output}
 
     @api.doc(security='apikey')
     @api.expect(recipe_format)
-    def post(self, category_id):
-        # Get the access token from the header
-        auth_header = request.headers.get('Authorization')
-        access_token = auth_header.split(" ")[1]
+    @token_required
+    def post(self, category_id, **kwargs):
+        user_id = kwargs.get('user_id')
 
-        if access_token:
-            # Attempt to decode the token and get the User ID
-            user_id = User.decode_token(access_token)
-            if not isinstance(user_id, str):
-                category = Category.query.filter_by(user_id=user_id).filter_by(id=category_id).first()
+        category = Category.query.filter_by(user_id=user_id).filter_by(id=category_id).first()
 
-                if not category:
-                    return {'message' : 'category does not exists'}
+        if not category:
+            return {'message' : 'category does not exists'}
 
-                data = request.get_json()
+        data = request.get_json()
 
-                # Validate data
-                validate_data(data)
+        # Validate data
+        validate_data(data)
 
-                ingredient = None
-                ingredients = []
-                ingredient_num = 1
-                while 'ingredient{}'.format(ingredient_num) in data:
-                    ingredient = data['ingredient{}'.format(ingredient_num)]
-                    ingredients.append(ingredient)
+        ingredient = None
+        ingredients = []
+        ingredient_num = 1
+        while 'ingredient{}'.format(ingredient_num) in data:
+            ingredient = data['ingredient{}'.format(ingredient_num)]
+            ingredients.append(ingredient)
 
-                    ingredient_num += 1
+            ingredient_num += 1
 
-                category.add_recipe(data['title'], ingredients, data['directions'], 'noImage')
+        category.add_recipe(data['title'], ingredients, data['directions'], 'noImage')
 
-                return {'message' : 'recipe added successfully'}, 201
-
-
-            else:
-                # user is not legit, so the payload is an error message
-                message = user_id
-                response = {
-                    'message': message
-                }
-                return response
-
+        return {'message' : 'recipe added successfully'}, 201
 
 @api.route('/category/<category_id>/recipe/<recipe_id>')
 class RecipeFunctions(Resource):
     @api.doc(security='apikey')
-    def get(self, category_id, recipe_id):
-        # Get the access token from the header
-        auth_header = request.headers.get('Authorization')
-        access_token = auth_header.split(" ")[1]
+    @token_required
+    def get(self, category_id, recipe_id, **kwargs):
+        user_id = kwargs.get('user_id')
 
-        if access_token:
-            # Attempt to decode the token and get the User ID
-            user_id = User.decode_token(access_token)
-            if not isinstance(user_id, str):
-                category = Category.query.filter_by(user_id=user_id).filter_by(id=category_id).first()
+        category = Category.query.filter_by(user_id=user_id).filter_by(id=category_id).first()
 
-                if not category:
-                    return {'message' : 'category does not exists'}
+        if not category:
+            return {'message' : 'category does not exists'}
 
-                recipe = Recipe.query.filter_by(category_id=category.id).filter_by(id=recipe_id).first()
+        recipe = Recipe.query.filter_by(category_id=category.id).filter_by(id=recipe_id).first()
 
-                if not recipe:
-                    return {'message' : 'recipe does not exists'}
+        if not recipe:
+            return {'message' : 'recipe does not exists'}
 
-                recipe_data = {}
+        recipe_data = {}
 
-                recipe_data['id'] = recipe.id
-                recipe_data['title'] = recipe.title
+        recipe_data['id'] = recipe.id
+        recipe_data['title'] = recipe.title
 
-                ing_num = 1
-                for ingredient in recipe.recipe_ingredients:
-                    recipe_data['ingredient{}'.format(ing_num)] = ingredient.ing
-                    ing_num += 1
+        ing_num = 1
+        for ingredient in recipe.recipe_ingredients:
+            recipe_data['ingredient{}'.format(ing_num)] = ingredient.ing
+            ing_num += 1
 
-                recipe_data['directions'] = recipe.directions
+        recipe_data['directions'] = recipe.directions
 
-                return recipe_data
-
-        else:
-                # user is not legit, so the payload is an error message
-                message = user_id
-                response = {
-                    'message': message
-                }
-                return response
+        return recipe_data
 
     @api.doc(security='apikey')
     @api.expect(recipe_format)
-    def put(self, category_id, recipe_id):
-        # Get the access token from the header
-        auth_header = request.headers.get('Authorization')
-        access_token = auth_header.split(" ")[1]
+    @token_required
+    def put(self, category_id, recipe_id, **kwargs):
+        user_id = kwargs.get('user_id')
 
-        if access_token:
-            # Attempt to decode the token and get the User ID
-            user_id = User.decode_token(access_token)
-            if not isinstance(user_id, str):
-                data = request.get_json()
+        data = request.get_json()
 
-                category = Category.query.filter_by(user_id=user_id).filter_by(id=category_id).first()
+        category = Category.query.filter_by(user_id=user_id).filter_by(id=category_id).first()
 
-                if not category:
-                    return {'message' : 'category does not exists'}
+        if not category:
+            return {'message' : 'category does not exists'}
 
-                category.edit_recipe(data, id=recipe_id)
+        category.edit_recipe(data, id=recipe_id)
 
-                return {'message' : 'Edited successfully'}
-
-            else:
-                # user is not legit, so the payload is an error message
-                message = user_id
-                response = {
-                    'message': message
-                }
-                return response
+        return {'message' : 'Edited successfully'}
 
     @api.doc(security='apikey')
-    def delete(self, category_id, recipe_id):
-        # Get the access token from the header
-        auth_header = request.headers.get('Authorization')
-        access_token = auth_header.split(" ")[1]
+    @token_required
+    def delete(self, category_id, recipe_id, **kwargs):
+        user_id = kwargs.get('user_id')
 
-        if access_token:
-            # Attempt to decode the token and get the User ID
-            user_id = User.decode_token(access_token)
-            if not isinstance(user_id, str):
-                category = Category.query.filter_by(user_id=user_id).filter_by(id=category_id).first()
+        category = Category.query.filter_by(user_id=user_id).filter_by(id=category_id).first()
 
-                if not category:
-                    return {'message' : 'category does not exists'}
+        if not category:
+            return {'message' : 'category does not exists'}
 
-                recipe = Recipe.query.filter_by(category_id=category.id).filter_by(id=recipe_id).first()
+        recipe = Recipe.query.filter_by(category_id=category.id).filter_by(id=recipe_id).first()
 
-                if not recipe:
-                    return {'message' : 'recipe does not exists'}
+        if not recipe:
+            return {'message' : 'recipe does not exists'}
 
-                db.session.delete(recipe)
-                db.session.commit()
+        db.session.delete(recipe)
+        db.session.commit()
 
-                return {'message' : 'Recipe deleted successfully'}
-
-            else:
-                # user is not legit, so the payload is an error message
-                message = user_id
-                response = {
-                    'message': message
-                }
-                return response
+        return {'message' : 'Recipe deleted successfully'}
