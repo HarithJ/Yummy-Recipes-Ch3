@@ -1,11 +1,12 @@
 import re
 
-from flask import request
+from flask import request, render_template
 from flask_login import login_required, login_user, logout_user, current_user
 from flask_restplus import Resource, fields, abort, reqparse
+from flask_mail import Message
 
 from . import api
-from app import db
+from app import db, mail
 from ..models import Category, User, Recipe
 
 user_registration_format = api.model('UserRegistration', {
@@ -21,6 +22,10 @@ user_basic_format = api.model('User', {
     'password' : fields.String('Password.')
 })
 
+resetpassword_format = api.model('Email', {
+    'email' : fields.String('Email')
+})
+
 category_format = api.model('Category', {
     'name' : fields.String('Category name')
 })
@@ -31,6 +36,10 @@ recipe_format = api.model('Recipe', {
     'ingredient2' : fields.String('ingredient'),
     'ingredient3' : fields.String('ingredient'),
     'directions' : fields.String('Directions to cook the recipe')
+})
+new_password_format = api.model('New_password', {
+    'token' : fields.String('Token for resetting password'),
+    'new_password' : fields.String('Your new password')
 })
 
 pagination_args = reqparse.RequestParser(bundle_errors=True)
@@ -63,7 +72,7 @@ def token_required(f):
                 response = {
                     'message': message
                 }
-                return response
+                abort(400, response)
 
             return f(*args, user_id=user_id, **kwargs)
 
@@ -76,10 +85,10 @@ def validation(string, email=False):
         email_regex = re.compile(r"[^@]+@[^@]+\.[^@]+")
         return email_regex.match(string)
     else:
-        text_regex = re.compile(r'^[A-Za-z ]+$')
+        text_regex = re.compile(r'^[A-Za-z1-9 ]+$')
         return text_regex.match(string)
 
-def validate_data(data):
+def validate_data(data, *args):
     for key, value in data.items():
             if key == 'email':
                 response = validation(value, email=True)
@@ -90,6 +99,12 @@ def validate_data(data):
 
             if not response:
                 abort(422, 'The {} you provided contains nothing or an invalid character'.format(key))
+
+def send_email(subject, sender, recipients, text_body, html_body):
+    msg = Message(subject, sender=sender, recipients=recipients)
+    msg.body = text_body
+    msg.html = html_body
+    mail.send(msg)
 
 @api.route('/register')
 class Register(Resource):
@@ -170,32 +185,54 @@ class Logout(Resource):
         }
         return response
 
+@api.route('/set-new-password', methods=['POST'])
+class set_new_password(Resource):
+    @api.expect(new_password_format)
+    def post(self):
+            data = api.payload
+
+            if not data['new_password']:
+                abort(400, 'You should provide your new password')
+            if not data['token']:
+                abort(400, 'You should provide the token')
+
+            user_id = User.decode_token(data['token'])
+            if isinstance(user_id, str):
+                # user is not legit, so the payload is an error message
+                abort(400, 'Invalid token. Please provide your email to reset-password.')
+
+            user = User.query.filter_by(id=user_id).first()
+            user.password = data['new_password']
+            db.session.commit()
+
+            return {'message' : 'your new password has been set.'}
+
 @api.route('/reset-password', methods=['POST'])
 class ResetPassword(Resource):
+    @api.expect(resetpassword_format)
     def post(self):
         data = api.payload
+
+        if not data['email']:
+            abort(400, 'You should provide your new password.')
 
         # Validate data
         validate_data(data)
 
-        if current_user.is_anonymous:
-            response = {
-                'message' : 'You are not logged in.'
-            }
-            return response
+        user = User.query.filter_by(email=data['email']).first()
+        if not user:
+            return {'message' : 'user not found.'}, 404
 
-        if current_user.verify_password(data['current_password']):
-            current_user.reset_password(data['new_password'])
-            response = {
-                'message' : 'You have successfully changed your password.'
-            }
-            return response
+        token = user.generate_token(user.id)
 
-        response = {
-            'message' : 'incorrect old password supplied.'
-        }
 
-        return response
+        return {"password_reset_token" : token.decode()}
+
+            # send_email("Reset Password",
+            #     data['email'],
+            #     [user.email],
+            #     render_template("resetpassword_email.txt", link=user.username),
+            #     render_template("resetpassword_email.html", link=user.username))
 
 @api.route('/category')
 class CategoriesAddOrGet(Resource):

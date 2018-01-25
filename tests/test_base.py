@@ -2,6 +2,7 @@ import unittest
 import json
 
 from app import create_app, db
+from app.models import Category
 
 class BaseTestCase(unittest.TestCase):
     def setUp(self):
@@ -10,11 +11,12 @@ class BaseTestCase(unittest.TestCase):
         self.client = self.app.test_client
 
         # binds the app with the current context
-        with self.app.app_context():
-            #create all tables
-            db.session.close()
-            db.drop_all()
-            db.create_all()
+        ctx = self.app.app_context()
+        ctx.push()
+        #create all tables
+        db.session.close()
+        db.drop_all()
+        db.create_all()
 
     def register_user(self, first_name='Tester', last_name='Api', username='apitester', email='tester@api.com', password='abc'):
         """This helper method helps register a test user"""
@@ -77,7 +79,7 @@ class BaseTestCase(unittest.TestCase):
         else:
             # Create cat_num of categories using create_category method, named category1 to category{i}
             i = 1
-            name = 'category{}'.format(cat_num)
+            name = 'category{}'.format(i)
             while(i <= cat_num):
                 category_create_response = self.create_category(token=token, context=context, name=name)
                 self.assertEquals(category_create_response.status_code, 201)

@@ -1,6 +1,6 @@
 import json
 
-from test_base import BaseTestCase
+from .test_base import BaseTestCase
 from app.models import Recipe, Ingredient
 
 class RecipeTestCase(BaseTestCase):
@@ -30,7 +30,7 @@ class RecipeTestCase(BaseTestCase):
                 ingredients.append('ingredient{}'.format(i+1))
 
         if directions == None:
-            directions = 'Testing the writing of directions for recipe titled "{}"'.format(title)
+            directions = 'Testing the writing of directions for recipe titled {}'.format(title)
 
         if rec_num == 1:
             recipe_data = {
@@ -52,7 +52,7 @@ class RecipeTestCase(BaseTestCase):
 
                 #set the directions, if not provided
                 if directions == None:
-                    directions = 'Testing the writing of directions for recipe titled "{}"'.format(title)
+                    directions = 'Testing the writing of directions for recipe titled {}'.format(title)
                 #else if the directions are provided just append the title of current recipe
                 else:
                     directions = "{} {}".format(directions, title)
@@ -90,7 +90,7 @@ class RecipeTestCase(BaseTestCase):
         assert recipe
 
     def test_get_all_recipes_successfully(self):
-        """Test that the Api can get all the recipes"""
+        """Test all recipes can be fetched"""
         # get the token and context
         token_and_context = self.get_token()
         token = token_and_context['token']
@@ -108,7 +108,7 @@ class RecipeTestCase(BaseTestCase):
         self.assertEquals(response.status_code, 200)
 
         # Extract recipes from the response and check their number
-        recipes = json.loads(response.data)['recipes']
+        recipes = json.loads(response.data)['category1 - recipes']
         self.assertEqual(len(recipes), 5)
 
     def test_get_limited_recipes_successfully(self):
@@ -130,7 +130,7 @@ class RecipeTestCase(BaseTestCase):
         self.assertEquals(response.status_code, 200)
 
         # Extract recipes from the response and check their number
-        recipes = json.loads(response.data)['recipes']
+        recipes = json.loads(response.data)['category1 - recipes']
         self.assertEqual(len(recipes), 3)
 
     def test_get_all_recipes_starting_with_specific_recipe(self):
@@ -154,12 +154,12 @@ class RecipeTestCase(BaseTestCase):
         # Extract recipes from the response and:
         # check number of recipes, it should be 2
         # check that the id of first recipe is 4
-        recipes = json.loads(response.data)['recipes']
+        recipes = json.loads(response.data)['category1 - recipes']
         self.assertEqual(len(recipes), 2)
         self.assertEquals(recipes[0]['id'], 4)
 
     def test_get_limited_recipes_starting_with_a_specific_recipe(self):
-        """Test GET method on recipes with offset parameter"""
+        """Test getting limited recipes starting off with a specific recipe"""
         # get the token and context
         token_and_context = self.get_token()
         token = token_and_context['token']
@@ -179,7 +179,7 @@ class RecipeTestCase(BaseTestCase):
         # Extract recipes from the response and:
         # check number of recipes, it should be 1
         # check that the id of recipe is 4
-        recipes = json.loads(response.data)['recipes']
+        recipes = json.loads(response.data)['category1 - recipes']
         self.assertEqual(len(recipes), 1)
         self.assertEquals(recipes[0]['id'], 4)
 
@@ -204,7 +204,7 @@ class RecipeTestCase(BaseTestCase):
 
         # Extract recipes from the response and:
         # check that the id of recipe is 4
-        recipes = json.loads(response.data)['recipes']
+        recipes = json.loads(response.data)['category1 - recipes']
         self.assertEquals(recipes[0]['title'], 'Title to be searched')
 
     def test_get_one_recipe_successfully(self):
@@ -229,11 +229,11 @@ class RecipeTestCase(BaseTestCase):
         # Extract recipes from the response and:
         # check that the id of recipe is 3
         recipes = json.loads(response.data)
+        print("\n\n*********************\n{}\n****************\n\n".format(response.data))
         self.assertEquals(recipes['id'], 3)
 
     def test_editing_a_recipe_successfully(self):
-        """Test that the API can get one recipe,
-        when provided with recipe id"""
+        """Test editing a recipe"""
         # get the token and context
         token_and_context = self.get_token()
         token = token_and_context['token']
@@ -267,8 +267,7 @@ class RecipeTestCase(BaseTestCase):
         self.assertEquals(recipe.directions, new_directions)
 
     def test_deleting_a_recipe_successfully(self):
-        """Test that the API can get one recipe,
-        when provided with recipe id"""
+        """Test deleting a recipe"""
         # get the token and context
         token_and_context = self.get_token()
         token = token_and_context['token']

@@ -1,6 +1,6 @@
 import json
 
-from test_base import BaseTestCase
+from .test_base import BaseTestCase
 
 class CategoryTestCase(BaseTestCase):
     """This class represents the Category test case"""
@@ -17,7 +17,7 @@ class CategoryTestCase(BaseTestCase):
         self.assertEquals(response.status_code, 201)
 
     def test_category_creation_fails_with_wrong_token(self):
-        """Test that the Api can create a category"""
+        """Test that the the category is not created when user provides a wrong token"""
         # get the token and context
         token_and_context = self.get_token()
         token = token_and_context['token']

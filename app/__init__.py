@@ -4,6 +4,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, login_required
 from flask_migrate import Migrate
 from flask_restplus import Api
+from flask_mail import Mail
+
 import re
 
 # local imports
@@ -19,6 +21,8 @@ db = SQLAlchemy()
 
 login_manager = LoginManager()
 
+mail = Mail()
+
 def create_app(config_name):
     app = Flask(__name__, static_folder='../designs/UI', template_folder='../designs/UI', instance_relative_config=True)
 
@@ -32,6 +36,8 @@ def create_app(config_name):
     login_manager.login_view = "auth.login_page"
 
     migrate = Migrate(app, db)
+
+    mail.init_app(app)
 
     from app import models
 
