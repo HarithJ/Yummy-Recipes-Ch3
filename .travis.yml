@@ -12,11 +12,10 @@ before_script:
 
 #set environment variables
 env:
-    - APP_SETTINGS=development
+    - APP_SETTINGS=production
 
 # command to run tests
 script:
-    - python manage.py test
     - nosetests --with-coverage --cover-package=app
 
 after_success: "coveralls"
