@@ -20,6 +20,8 @@ class TestingConfig(Config):
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = 'postgresql://testuser:abc123@localhost:5432/testdb'
 
+    APPLICATION_ROOT = '/api/v1.0'
+
 class StagingConfig(Config):
     """Configurations for Staging."""
     DEBUG = True

@@ -57,7 +57,7 @@ def token_required(f):
         # Get the access token from the header
         auth_header = request.headers.get('Authorization')
         if not auth_header:
-            abort(401, 'You have not yet provided a token')
+            abort(401, 'Please provide token to access this resource.')
         elif auth_header.startswith("Bearer "):
             access_token = auth_header.split(" ")[1]
         else:
@@ -72,7 +72,7 @@ def token_required(f):
                 response = {
                     'message': message
                 }
-                abort(400, response)
+                abort(401, response)
 
             return f(*args, user_id=user_id, **kwargs)
 
@@ -171,7 +171,7 @@ class Logout(Resource):
         validate_data(data)
 
         if current_user.is_anonymous:
-            abort(403, 'You are not logged in.')
+            abort(401, 'You are not logged in.')
 
         if data['email'] == current_user.email and current_user.verify_password(data['password']):
             logout_user()
@@ -183,7 +183,8 @@ class Logout(Resource):
         response = {
             'message': 'Incorrect credentials supplied.'
         }
-        return response
+
+        abort(401, response)
 
 @api.route('/set-new-password', methods=['POST'])
 class set_new_password(Resource):
@@ -199,7 +200,7 @@ class set_new_password(Resource):
             user_id = User.decode_token(data['token'])
             if isinstance(user_id, str):
                 # user is not legit, so the payload is an error message
-                abort(400, 'Invalid token. Please provide your email to reset-password.')
+                abort(401, 'Invalid token. Please provide your email to reset-password.')
 
             user = User.query.filter_by(id=user_id).first()
             user.password = data['new_password']
@@ -214,7 +215,7 @@ class ResetPassword(Resource):
         data = api.payload
 
         if not data['email']:
-            abort(400, 'You should provide your new password.')
+            abort(400, 'You should provide your email.')
 
         # Validate data
         validate_data(data)
@@ -226,13 +227,13 @@ class ResetPassword(Resource):
         token = user.generate_token(user.id)
 
 
-        return {"password_reset_token" : token.decode()}
+        # return {"password_reset_token" : token.decode()}
 
-            # send_email("Reset Password",
-            #     data['email'],
-            #     [user.email],
-            #     render_template("resetpassword_email.txt", link=user.username),
-            #     render_template("resetpassword_email.html", link=user.username))
+        send_email("Reset Password",
+            data['email'],
+            [user.email],
+            render_template("resetpassword_email.txt", token=token.decode()),
+            render_template("resetpassword_email.html", token=token.decode()))
 
 @api.route('/category')
 class CategoriesAddOrGet(Resource):
@@ -326,7 +327,7 @@ class CategoryFunctions(Resource):
         category = Category.query.filter_by(user_id=user_id).filter_by(id=category_id).first()
 
         if not category:
-            return {'message' : 'category does not exists'}
+            return {'message' : 'category does not exists'}, 404
 
         data = request.get_json()
         if data['name']:
@@ -344,7 +345,7 @@ class CategoryFunctions(Resource):
         category_name = category.name
 
         if not category:
-            return {'message' : 'No category found'}
+            return {'message' : 'No category found'}, 404
 
         db.session.delete(category)
         db.session.commit()
@@ -362,7 +363,7 @@ class RecipesGetOrAdd(Resource):
         category = Category.query.filter_by(user_id=user_id).filter_by(id=category_id).first()
 
         if not category:
-            return {'message' : 'category does not exists'}
+            return {'message' : 'category does not exists'}, 404
 
         #set the limit if it has been provided by the user
         lim = request.args.get('limit', None)
@@ -380,6 +381,9 @@ class RecipesGetOrAdd(Resource):
 
         if title:
             recipes = Recipe.query.filter_by(category_id=category_id).filter_by(title=title).all()
+
+        if not recipes:
+            return {'message' : 'no recipes found'}, 404
 
         output = []
 
@@ -409,7 +413,7 @@ class RecipesGetOrAdd(Resource):
         category = Category.query.filter_by(user_id=user_id).filter_by(id=category_id).first()
 
         if not category:
-            return {'message' : 'category does not exists'}
+            return {'message' : 'category does not exists'}, 404
 
         data = request.get_json()
 
@@ -444,7 +448,7 @@ class RecipeFunctions(Resource):
         recipe = Recipe.query.filter_by(category_id=category.id).filter_by(id=recipe_id).first()
 
         if not recipe:
-            return {'message' : 'recipe does not exists'}
+            return {'message' : 'recipe does not exists'}, 404
 
         recipe_data = {}
 
@@ -471,11 +475,9 @@ class RecipeFunctions(Resource):
         category = Category.query.filter_by(user_id=user_id).filter_by(id=category_id).first()
 
         if not category:
-            return {'message' : 'category does not exists'}
+            return {'message' : 'category does not exists'},404
 
-        category.edit_recipe(data, id=recipe_id)
-
-        return {'message' : 'Edited successfully'}
+        return category.edit_recipe(data, id=recipe_id)
 
     @api.doc(security='apikey')
     @token_required
@@ -485,12 +487,12 @@ class RecipeFunctions(Resource):
         category = Category.query.filter_by(user_id=user_id).filter_by(id=category_id).first()
 
         if not category:
-            return {'message' : 'category does not exists'}
+            return {'message' : 'category does not exists'}, 404
 
         recipe = Recipe.query.filter_by(category_id=category.id).filter_by(id=recipe_id).first()
 
         if not recipe:
-            return {'message' : 'recipe does not exists'}
+            return {'message' : 'recipe does not exists'}, 404
 
         db.session.delete(recipe)
         db.session.commit()

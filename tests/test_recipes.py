@@ -41,7 +41,7 @@ class RecipeTestCase(BaseTestCase):
                 'directions' : directions
             }
             # Create the recipe using the link in the app through the context given and return the response
-            return context.post('/api/v1.0/category/{}/recipe'.format(cat_id), headers=dict(Authorization="Bearer " + token), data=json.dumps(recipe_data), content_type='application/json')
+            return context.post(self.url + 'category/{}/recipe'.format(cat_id), headers=dict(Authorization="Bearer " + token), data=json.dumps(recipe_data), content_type='application/json')
 
         # else if more than one recipes are to be created
         else:
@@ -68,7 +68,7 @@ class RecipeTestCase(BaseTestCase):
                 }
 
                 # create the recipe using the link in the app
-                context.post('/api/v1.0/category/{}/recipe'.format(cat_id), headers=dict(Authorization="Bearer " + token), data=json.dumps(recipe_data), content_type='application/json')
+                context.post(self.url + 'category/{}/recipe'.format(cat_id), headers=dict(Authorization="Bearer " + token), data=json.dumps(recipe_data), content_type='application/json')
 
 
     def test_recipe_creation_successfully(self):
@@ -104,7 +104,7 @@ class RecipeTestCase(BaseTestCase):
         self.create_recipe(token, context, rec_num=5)
 
         # call the link to get the response
-        response = context.get('/api/v1.0/category/1/recipe', headers=dict(Authorization="Bearer " + token))
+        response = context.get(self.url + 'category/1/recipe', headers=dict(Authorization="Bearer " + token))
         self.assertEquals(response.status_code, 200)
 
         # Extract recipes from the response and check their number
@@ -126,7 +126,7 @@ class RecipeTestCase(BaseTestCase):
         self.create_recipe(token, context, rec_num=5)
 
         # call the link to get the response
-        response = context.get('/api/v1.0/category/1/recipe?limit=3', headers=dict(Authorization="Bearer " + token))
+        response = context.get(self.url + 'category/1/recipe?limit=3', headers=dict(Authorization="Bearer " + token))
         self.assertEquals(response.status_code, 200)
 
         # Extract recipes from the response and check their number
@@ -148,7 +148,7 @@ class RecipeTestCase(BaseTestCase):
         self.create_recipe(token, context, rec_num=5)
 
         # call the link to get the response
-        response = context.get('/api/v1.0/category/1/recipe?offset=3', headers=dict(Authorization="Bearer " + token))
+        response = context.get(self.url + 'category/1/recipe?offset=3', headers=dict(Authorization="Bearer " + token))
         self.assertEquals(response.status_code, 200)
 
         # Extract recipes from the response and:
@@ -173,7 +173,7 @@ class RecipeTestCase(BaseTestCase):
         self.create_recipe(token, context, rec_num=5)
 
         # call the link to get the response
-        response = context.get('/api/v1.0/category/1/recipe?limit=1&offset=3', headers=dict(Authorization="Bearer " + token))
+        response = context.get(self.url + 'category/1/recipe?limit=1&offset=3', headers=dict(Authorization="Bearer " + token))
         self.assertEquals(response.status_code, 200)
 
         # Extract recipes from the response and:
@@ -199,7 +199,7 @@ class RecipeTestCase(BaseTestCase):
         self.create_recipe(token, context, title='Title to be searched')
 
         # call the link to get the response
-        response = context.get('/api/v1.0/category/1/recipe?q=Title to be searched', headers=dict(Authorization="Bearer " + token))
+        response = context.get(self.url + 'category/1/recipe?q=Title to be searched', headers=dict(Authorization="Bearer " + token))
         self.assertEquals(response.status_code, 200)
 
         # Extract recipes from the response and:
@@ -223,13 +223,12 @@ class RecipeTestCase(BaseTestCase):
         self.create_recipe(token, context, rec_num=5)
 
         # call the link to get the response
-        response = context.get('/api/v1.0/category/1/recipe/3', headers=dict(Authorization="Bearer " + token))
+        response = context.get(self.url + 'category/1/recipe/3', headers=dict(Authorization="Bearer " + token))
         self.assertEquals(response.status_code, 200)
 
         # Extract recipes from the response and:
         # check that the id of recipe is 3
         recipes = json.loads(response.data)
-        print("\n\n*********************\n{}\n****************\n\n".format(response.data))
         self.assertEquals(recipes['id'], 3)
 
     def test_editing_a_recipe_successfully(self):
@@ -255,7 +254,7 @@ class RecipeTestCase(BaseTestCase):
             'ingredient1' : new_ingredient,
             'directions' : new_directions
             }
-        response = context.put('/api/v1.0/category/1/recipe/3', headers=dict(Authorization="Bearer " + token), data=json.dumps(form), content_type='application/json')
+        response = context.put(self.url + 'category/1/recipe/3', headers=dict(Authorization="Bearer " + token), data=json.dumps(form), content_type='application/json')
         self.assertEquals(response.status_code, 200)
 
         # get the third recipe and its ingredient and check its contents
@@ -281,7 +280,7 @@ class RecipeTestCase(BaseTestCase):
         self.create_recipe(token, context, rec_num=5)
 
         # call the link to delete the recipe
-        response = context.delete('/api/v1.0/category/1/recipe/3', headers=dict(Authorization="Bearer " + token))
+        response = context.delete(self.url + 'category/1/recipe/3', headers=dict(Authorization="Bearer " + token))
         self.assertEquals(response.status_code, 200)
 
         # get the third recipe and its ingredient and check its contents

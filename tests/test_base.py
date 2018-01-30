@@ -17,6 +17,7 @@ class BaseTestCase(unittest.TestCase):
         db.session.close()
         db.drop_all()
         db.create_all()
+        self.url = '/api/v1.0/'
 
     def register_user(self, first_name='Tester', last_name='Api', username='apitester', email='tester@api.com', password='abc'):
         """This helper method helps register a test user"""
@@ -28,7 +29,7 @@ class BaseTestCase(unittest.TestCase):
             'password' : password
         }
 
-        return self.client().post('/api/v1.0/register', data=json.dumps(user_data), content_type='application/json')
+        return self.client().post(self.url + 'register', data=json.dumps(user_data), content_type='application/json')
 
     def login_user(self, email='tester@api.com', password='abc'):
         """This helper method helps log in a test user in a specific context.
@@ -41,7 +42,7 @@ class BaseTestCase(unittest.TestCase):
 
         with self.client() as c:
             return {
-                'login_response' : c.post('/api/v1.0/login', data=json.dumps(user_data), content_type='application/json'),
+                'login_response' : c.post(self.url + 'login', data=json.dumps(user_data), content_type='application/json'),
                 'context' : c
                 }
 
@@ -75,7 +76,7 @@ class BaseTestCase(unittest.TestCase):
             category_data = {'name' : name}
 
             # Create a category by going to that link in the app using the context given
-            return context.post('/api/v1.0/category', headers=dict(Authorization="Bearer " + token), data=json.dumps(category_data), content_type='application/json')
+            return context.post(self.url + 'category', headers=dict(Authorization="Bearer " + token), data=json.dumps(category_data), content_type='application/json')
         else:
             # Create cat_num of categories using create_category method, named category1 to category{i}
             i = 1

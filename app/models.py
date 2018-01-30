@@ -68,6 +68,9 @@ class Category(db.Model):
         else:
             edit_this = Recipe.query.filter_by(title=kwargs['prev_title']).filter_by(category_id=self.id).first()
 
+        if edit_this == None:
+            return {'message' : 'recipe not found'}, 404
+
         if 'title' in data:
             edit_this.title = data['title']
             data.pop('title')
@@ -99,6 +102,7 @@ class Category(db.Model):
         db.session.commit()
 
         """
+        {'message' : 'Edited successfully'}
 
     def delete_recipe(self, recipe_title):
         delete_this = Recipe.query.filter_by(title=recipe_title).filter_by(category_id=self.id).first()
