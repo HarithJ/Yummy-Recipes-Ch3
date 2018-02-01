@@ -6,6 +6,9 @@ from functools import wraps
 import jwt
 from flask import jsonify, request
 from datetime import datetime, timedelta
+from flask_restplus import abort
+
+from sqlalchemy.exc import IntegrityError
 
 from config import Config
 
@@ -36,6 +39,9 @@ class Recipe(db.Model):
 
     category_id = db.Column(db.Integer, db.ForeignKey("categories.id"))
 
+    __table_args__ = (db.UniqueConstraint('category_id', 'title', name='_category_title_uc'),
+                     )
+
 class Category(db.Model):
     __tablename__ = 'categories'
     __table_args__ = {'extend_existing': True}
@@ -46,17 +52,24 @@ class Category(db.Model):
 
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
 
+    __table_args__ = (db.UniqueConstraint('user_id', 'name', name='_user_category_uc'),
+                     )
+
     def add_recipe(self, recipe_title, ingredients, directions, filename):
         for i in range(len(ingredients)):
             ingredients[i] = Ingredient(ing=ingredients[i])
             db.session.add(ingredients[i])
 
-        recipe = Recipe(title = recipe_title, recipe_ingredients = ingredients, directions = directions, filename = filename)
+        try:
+            recipe = Recipe(title = recipe_title, recipe_ingredients = ingredients, directions = directions, filename = filename)
 
-        self.category_recipes.append(recipe)
-        db.session.add(recipe)
+            self.category_recipes.append(recipe)
+            db.session.add(recipe)
 
-        db.session.commit()
+            db.session.commit()
+        except:
+            db.session.rollback()
+            abort(409, 'The recipe title already exists.')
 
     def get_recipes(self):
         return self.category_recipes.all()
@@ -71,27 +84,32 @@ class Category(db.Model):
         if edit_this == None:
             return {'message' : 'recipe not found'}, 404
 
-        if 'title' in data:
-            edit_this.title = data['title']
-            data.pop('title')
+        try:
+            if 'title' in data:
+                edit_this.title = data['title']
+                data.pop('title')
 
-        if 'directions' in data:
-            edit_this.directions = data['directions']
-            data.pop('directions')
+            if 'directions' in data:
+                edit_this.directions = data['directions']
+                data.pop('directions')
 
-        if 'filename' in data:
-            edit_this.filename = data['filename']
-            data.pop('filename')
+            if 'filename' in data:
+                edit_this.filename = data['filename']
+                data.pop('filename')
 
-        if data:
-            ing_num = 1
-            for ingredient in edit_this.recipe_ingredients:
-                ing = 'ingredient{}'.format(ing_num)
-                if ing in data:
-                    ingredient.ing = data[ing]
-                    data.pop(ing)
-                    db.session.commit()
-                ing_num += 1
+            if data:
+                ing_num = 1
+                for ingredient in edit_this.recipe_ingredients:
+                    ing = 'ingredient{}'.format(ing_num)
+                    if ing in data:
+                        ingredient.ing = data[ing]
+                        data.pop(ing)
+                        db.session.commit()
+                    ing_num += 1
+
+        except IntegrityError:
+                db.session.rollback()
+                abort(409, 'The recipe title already exists.')
         """
         if data:
             for key, value in data.items():

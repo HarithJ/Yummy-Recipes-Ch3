@@ -7,7 +7,7 @@ from app import db, create_app
 from app import models
 
 # initialize the app with all its configurations
-app = create_app(config_name=os.getenv('APP_SETTINGS'))
+app = create_app(config_name=os.getenv('APP_SETTINGS', 'production'))
 migrate = Migrate(app, db)
 # create an instance of class that will handle our commands
 manager = Manager(app)
@@ -26,6 +26,13 @@ def test():
     if result.wasSuccessful():
         return 0
     return 1
+
+@manager.command
+def resetdb():
+    """Runs the unit tests without test coverage."""
+    db.session.close()
+    db.drop_all()
+    db.create_all()
 
 if __name__ == '__main__':
     manager.run()

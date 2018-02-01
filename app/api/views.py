@@ -5,6 +5,8 @@ from flask_login import login_required, login_user, logout_user, current_user
 from flask_restplus import Resource, fields, abort, reqparse
 from flask_mail import Message
 
+from sqlalchemy.exc import IntegrityError
+
 from . import api
 from app import db, mail
 from ..models import Category, User, Recipe
@@ -81,24 +83,34 @@ def token_required(f):
 
 def validation(string, email=False):
     string = string.lstrip()
+
     if email:
         email_regex = re.compile(r"[^@]+@[^@]+\.[^@]+")
         return email_regex.match(string)
+
     else:
         text_regex = re.compile(r'^[A-Za-z1-9 ]+$')
         return text_regex.match(string)
 
 def validate_data(data, *args):
     for key, value in data.items():
-            if key == 'email':
-                response = validation(value, email=True)
-            elif 'password' in key:
-                break
-            else:
-                response = validation(value)
+        if not isinstance(value, str):
+            abort(422, 'The {} you provided is not in string format. PLease make sure you entered your {} in quotes.'.format(key, key))
 
-            if not response:
-                abort(422, 'The {} you provided contains nothing or an invalid character'.format(key))
+        if key == 'email':
+            response = validation(value, email=True)
+
+        elif 'password' in key:
+            break
+
+        else:
+            response = validation(value)
+
+        if not response:
+            abort(422, 'The {} you provided contains nothing or an invalid character'.format(key))
+
+def no_duplicates(*args, **kwargs):
+    pass
 
 def send_email(subject, sender, recipients, text_body, html_body):
     msg = Message(subject, sender=sender, recipients=recipients)
@@ -115,22 +127,23 @@ class Register(Resource):
         # Validate the input provided by the user
         validate_data(data)
 
-        # check if the username or the email already exists in db
-        check_username = User.query.filter_by(username=data['username']).first()
-        check_email = User.query.filter_by(email=data['email']).first()
+        try:
+            # create user and add him/her to the db
+            user = User(email = data['email'],
+                        username = data['username'],
+                        first_name = data['first_name'],
+                        last_name = data['last_name'],
+                        password = data['password'])
 
-        if check_username or check_email:
-            abort(409, 'User already exists. Please login.')
+            db.session.add(user)
+            db.session.commit()
 
-        # create user and add him/her to the db
-        user = User(email = data['email'],
-                    username = data['username'],
-                    first_name = data['first_name'],
-                    last_name = data['last_name'],
-                    password = data['password'])
-
-        db.session.add(user)
-        db.session.commit()
+        except IntegrityError as e:
+            db.session.rollback()
+            if ('username' in str(e.orig)):
+                abort(409, "The username has already been taken, please choose another username.")
+            else:
+                abort(409, "The email that you entered has already been registered with this website.")
 
         return {'message' : 'user created successfully'}, 201
 
@@ -250,15 +263,20 @@ class CategoriesAddOrGet(Resource):
         validate_data(data)
 
         if data['name']:
-            category = Category(name = data['name'], user_id = user_id)
+            try:
+                category = Category(name = data['name'], user_id = user_id)
 
-            db.session.add(category)
-            db.session.commit()
+                db.session.add(category)
+                db.session.commit()
+
+            except IntegrityError:
+                db.session.rollback()
+                abort(409, "The category name that you entered already exists.")
 
             response = {'id' : category.id,
-                'category_name' : category.name,
-                'created_by' : current_user.first_name
-            }
+                    'category_name' : category.name,
+                    'created_by' : current_user.first_name
+                }
 
             return response, 201
 
@@ -331,9 +349,14 @@ class CategoryFunctions(Resource):
 
         data = request.get_json()
         if data['name']:
-            prev_name = category.name
-            category.name = data['name']
-            db.session.commit()
+            try:
+                prev_name = category.name
+                category.name = data['name']
+                db.session.commit()
+
+            except IntegrityError:
+                db.session.rollback()
+                abort(409, "The category name that you entered already exists.")
 
             return {'message' : 'Category ' + prev_name + ' changed to ' + category.name}
 
