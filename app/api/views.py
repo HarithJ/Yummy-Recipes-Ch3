@@ -109,9 +109,6 @@ def validate_data(data, *args):
         if not response:
             abort(422, 'The {} you provided contains nothing or an invalid character'.format(key))
 
-def no_duplicates(*args, **kwargs):
-    pass
-
 def send_email(subject, sender, recipients, text_body, html_body):
     msg = Message(subject, sender=sender, recipients=recipients)
     msg.body = text_body
@@ -403,7 +400,7 @@ class RecipesGetOrAdd(Resource):
         title = request.args.get('q', None)
 
         if title:
-            recipes = Recipe.query.filter_by(category_id=category_id).filter_by(title=title).all()
+            recipes = Recipe.query.filter_by(category_id=category_id).whoosh_search(title).all()
 
         if not recipes:
             return {'message' : 'no recipes found'}, 404

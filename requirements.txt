@@ -5,7 +5,7 @@ autopep8==1.3.3
 backports.shutil-get-terminal-size==1.0.0
 backports.shutil-which==3.5.1
 beautifulsoup4==4.6.0
-blinker==1.4
+blinker==1.3
 bs4==0.0.1
 cairocffi==0.8.0
 CairoSVG==2.0.3
@@ -24,7 +24,7 @@ docopt==0.6.2
 EditorConfig==0.12.1
 feedparser==5.2.1
 flake8==3.4.1
-Flask==0.12.2
+Flask==0.10.1
 Flask-AutoIndex==0.6
 Flask-JSGlue==0.3.1
 Flask-Login==0.4.0
@@ -34,8 +34,9 @@ flask-restplus==0.10.1
 Flask-Script==2.0.6
 Flask-Session==0.3.1
 Flask-Silk==0.2
-Flask-SQLAlchemy==2.2
+Flask-SQLAlchemy==1.0
 Flask-Testing==0.6.2
+Flask-WhooshAlchemy==0.8
 future==0.16.0
 help50==2.0.0
 html5lib==0.999999999
@@ -106,4 +107,5 @@ waitress==1.1.0
 WeasyPrint==0.42
 webencodings==0.5.1
 Werkzeug==0.12.2
+Whoosh==2.6.0
 wrapt==1.10.11

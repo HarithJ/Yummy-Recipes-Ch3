@@ -7,6 +7,7 @@ import jwt
 from flask import jsonify, request
 from datetime import datetime, timedelta
 from flask_restplus import abort
+import flask_whooshalchemy
 
 from sqlalchemy.exc import IntegrityError
 
@@ -30,6 +31,7 @@ class Ingredient(db.Model):
 class Recipe(db.Model):
     __tablename__ = 'recipes'
     __table_args__ = {'extend_existing': True}
+    __searchable__ = ['title']
 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100))
@@ -120,7 +122,7 @@ class Category(db.Model):
         db.session.commit()
 
         """
-        {'message' : 'Edited successfully'}
+        return {'message' : 'Edited successfully'}
 
     def delete_recipe(self, recipe_title):
         delete_this = Recipe.query.filter_by(title=recipe_title).filter_by(category_id=self.id).first()
