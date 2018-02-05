@@ -185,7 +185,7 @@ class User(UserMixin, db.Model):
     first_name = db.Column(db.String(60), index=True)
     last_name = db.Column(db.String(60), index=True)
     password_hash = db.Column(db.String(128))
-    reset_password_token_hash = db.Column(db.String(128))
+    token = db.Column(db.String(1000))
     user_categories = db.relationship('Category', backref='categories', lazy='dynamic', cascade="all, delete-orphan")
 
     @property

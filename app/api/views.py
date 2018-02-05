@@ -68,6 +68,8 @@ def token_required(f):
             abort(400, "Make sure you have the word 'Bearer' before the token: 'Bearer TOKEN'")
 
         if access_token:
+            if current_user.token == "":
+                abort(401, 'Please login to get a valid token.')
             # Attempt to decode the token and get the User ID
             user_id = User.decode_token(access_token)
             if isinstance(user_id, str):
@@ -83,12 +85,17 @@ def token_required(f):
     return wrapper
 
 
-def validation(string, email=False):
+def validation(string, email=False, password=False):
     string = string.lstrip()
 
     if email:
         email_regex = re.compile(r"[^@]+@[^@]+\.[^@]+")
         return email_regex.match(string)
+
+    elif password:
+        # At least 8 characters, may contain letters, numbers or special characters(@#$%^&+=)
+        password_regex = re.compile(r'[A-Za-z0-9@#$%^&+=]{8,}')
+        return password_regex.match(string)
 
     else:
         text_regex = re.compile(r'^[A-Za-z1-9 ]+$')
@@ -103,7 +110,9 @@ def validate_data(data, *args):
             response = validation(value, email=True)
 
         elif 'password' in key:
-            break
+            response = validation(value, password=True)
+            if not response:
+                abort(422, 'The password you provided MUST be atleast 8 characters long.')
 
         else:
             response = validation(value)
@@ -163,6 +172,8 @@ class Login(Resource):
             login_user(user)
 
             token = user.generate_token(user.id)
+            user.token = token
+            db.session.commit()
 
             response = {
                 'message': 'You logged in successfully.',
@@ -175,28 +186,12 @@ class Login(Resource):
 
 @api.route('/logout')
 class Logout(Resource):
-    @api.expect(user_basic_format)
-    def post(self):
-        data = api.payload
+    def get(self):
+        logout_user()
+        current_user.token = ""
+        db.session.commit()
 
-        # Validate data
-        validate_data(data)
-
-        if current_user.is_anonymous:
-            abort(401, 'You are not logged in.')
-
-        if data['email'] == current_user.email and current_user.verify_password(data['password']):
-            logout_user()
-            response = {
-                'message': 'You have successfully logged out'
-            }
-            return response
-
-        response = {
-            'message': 'Incorrect credentials supplied.'
-        }
-
-        abort(401, response)
+        return {'message' : 'You have successfully logged out.'}
 
 @api.route('/set-new-password', methods=['POST'])
 class set_new_password(Resource):
@@ -237,7 +232,6 @@ class ResetPassword(Resource):
             return {'message' : 'user not found.'}, 404
 
         token = user.generate_token(user.id)
-
 
         # return {"password_reset_token" : token.decode()}
 
