@@ -213,7 +213,7 @@ class set_new_password(Resource):
             user.password = data['new_password']
             db.session.commit()
 
-            return {'message' : 'your new password has been set.'}
+            return {'message' : 'Your new password has been set!'}
 
 @api.route('/reset-password', methods=['POST'])
 class ResetPassword(Resource):
@@ -240,6 +240,8 @@ class ResetPassword(Resource):
             [user.email],
             render_template("resetpassword_email.txt", token=token.decode()),
             render_template("resetpassword_email.html", token=token.decode()))
+
+        return {'message' : 'Instructions sent to your inbox.'}
 
 @api.route('/category')
 class CategoriesAddOrGet(Resource):
