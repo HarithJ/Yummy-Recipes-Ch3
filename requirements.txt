@@ -12,11 +12,9 @@ CairoSVG==2.0.3
 certifi==2017.7.27.1
 cffi==1.10.0
 chardet==3.0.4
-check50==2.2.1
 click==6.7
 coverage==4.4.2
 coveralls==1.2.0
-cs50==2.3.3
 cssselect==1.0.1
 cssselect2==0.2.0
 decorator==4.1.2
@@ -38,7 +36,6 @@ Flask-SQLAlchemy==1.0
 Flask-Testing==0.6.2
 Flask-WhooshAlchemy==0.8
 future==0.16.0
-help50==2.0.0
 html5lib==0.999999999
 icdiff==1.9.1
 idna==2.6
@@ -85,15 +82,12 @@ python-dateutil==2.6.1
 python-editor==1.0.3
 python-magic==0.4.13
 pytz==2017.2
-render50==2.4.4
 requests==2.18.4
 requests-oauthlib==0.8.0
 six==1.10.0
 SQLAlchemy==1.1.13
 sqlparse==0.2.3
 stevedore==1.27.1
-style50==2.4.0
-submit50==2.4.6
 termcolor==1.1.0
 tinycss==0.4
 tinycss2==0.6.0

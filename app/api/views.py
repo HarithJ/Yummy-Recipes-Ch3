@@ -4,6 +4,8 @@ from flask import request, render_template
 from flask_login import login_required, login_user, logout_user, current_user
 from flask_restplus import Resource, fields, abort, reqparse
 from flask_mail import Message
+from sqlalchemy import literal
+from sqlalchemy_searchable import search
 
 from sqlalchemy.exc import IntegrityError
 
@@ -52,7 +54,7 @@ pagination_args.add_argument(
     'limit', type=int, help='Results per page', location='query')
 
 pagination_args.add_argument(
-    'offset', type=int, help='Starting point', location='query')
+    'page', type=int, help='Number of page', location='query')
 
 def token_required(f):
     def wrapper(*args, **kwargs):
@@ -283,27 +285,26 @@ class CategoriesAddOrGet(Resource):
     def get(self, **kwargs):
         user_id = kwargs.get('user_id')
 
-        #set the limit if it has been provided by the user
+        # set the limit if it has been provided by the user
         lim = request.args.get('limit', None)
-        #set the offset if the user provided
-        off= request.args.get('offset', 0)
+        # set the page if the user provided, else default to one
+        page = request.args.get('page', 1)
+        # set the name if user provided the search query
+        name = request.args.get('q', None)
 
-        if lim and off:
-            categories = Category.query.filter_by(user_id=user_id).limit(lim).offset(off).all()
+        if name and lim:
+            categories = Category.query.filter_by(user_id=user_id).search(name).paginate(int(page), int(lim), False).items
+        elif name:
+            categories = Category.query.filter_by(user_id=user_id).search(name).all()
         elif lim:
-            categories = Category.query.filter_by(user_id=user_id).limit(lim).all()
-        elif off:
-            categories = Category.query.filter_by(user_id=user_id).offset(off).all()
+             categories = Category.query.filter_by(user_id=user_id).paginate(int(page), int(lim), False).items
         else:
             categories = Category.query.filter_by(user_id=user_id).all()
 
-        name = request.args.get('q', None)
-
-        if name:
-            categories = Category.query.filter_by(user_id=user_id).filter_by(name=name).all()
-
         if name and not categories:
-            abort(404, 'Not found')
+            return {'message' : 'Not found'}, 404
+        elif not categories:
+            return {'message' : 'No categories here.'}, 404
 
         output = []
 
@@ -388,19 +389,18 @@ class RecipesGetOrAdd(Resource):
         #set the limit if it has been provided by the user
         lim = request.args.get('limit', None)
         #set the offset if the user provided
-        off= request.args.get('offset', 0)
-
-        if lim:
-            recipes = Recipe.query.filter_by(category_id=category_id).limit(lim).offset(off).all()
-        elif off:
-            recipes = Recipe.query.filter_by(category_id=category_id).offset(off).all()
-        else:
-            recipes = category.category_recipes
-
+        page = request.args.get('page', 0)
+        # set the title if search query was provided
         title = request.args.get('q', None)
 
-        if title:
-            recipes = Recipe.query.filter_by(category_id=category_id).whoosh_search(title).all()
+        if title and lim:
+            recipes = Recipe.query.filter_by(category_id=category_id).search(title).paginate(int(page), int(lim), False).items
+        elif title:
+            recipes = Recipe.query.filter_by(category_id=category_id).search(title).all()
+        elif lim:
+            recipes = Recipe.query.filter_by(category_id=category_id).paginate(int(page), int(lim), False).items
+        else:
+            recipes = category.category_recipes
 
         if not recipes:
             return {'message' : 'no recipes found'}, 404

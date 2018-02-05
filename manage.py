@@ -32,6 +32,7 @@ def resetdb():
     """Runs the unit tests without test coverage."""
     db.session.close()
     db.drop_all()
+    db.configure_mappers()
     db.create_all()
 
 if __name__ == '__main__':

@@ -7,7 +7,6 @@ import jwt
 from flask import jsonify, request
 from datetime import datetime, timedelta
 from flask_restplus import abort
-import flask_whooshalchemy
 
 from sqlalchemy.exc import IntegrityError
 
@@ -15,8 +14,25 @@ from config import Config
 
 from app import db, login_manager
 
+# Search
+from flask.ext.sqlalchemy import SQLAlchemy, BaseQuery
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy_searchable import make_searchable
+from sqlalchemy_utils.types import TSVectorType
+from sqlalchemy_searchable import SearchQueryMixin
+
+Base = declarative_base()
+
+make_searchable()
+
 class Globals():
     current_category = None
+
+class CategoryQuery(BaseQuery, SearchQueryMixin):
+    pass
+
+class RecipeQuery(BaseQuery, SearchQueryMixin):
+    pass
 
 class Ingredient(db.Model):
     __tablename__ = 'ingredients'
@@ -29,9 +45,9 @@ class Ingredient(db.Model):
 
 
 class Recipe(db.Model):
+    query_class = RecipeQuery
     __tablename__ = 'recipes'
     __table_args__ = {'extend_existing': True}
-    __searchable__ = ['title']
 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100))
@@ -44,7 +60,10 @@ class Recipe(db.Model):
     __table_args__ = (db.UniqueConstraint('category_id', 'title', name='_category_title_uc'),
                      )
 
+    search_vector = db.Column(TSVectorType('title'))
+
 class Category(db.Model):
+    query_class = CategoryQuery
     __tablename__ = 'categories'
     __table_args__ = {'extend_existing': True}
 
@@ -56,6 +75,8 @@ class Category(db.Model):
 
     __table_args__ = (db.UniqueConstraint('user_id', 'name', name='_user_category_uc'),
                      )
+
+    search_vector = db.Column(TSVectorType('name'))
 
     def add_recipe(self, recipe_title, ingredients, directions, filename):
         for i in range(len(ingredients)):
@@ -271,7 +292,3 @@ class User(UserMixin, db.Model):
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
-
-
-
-
