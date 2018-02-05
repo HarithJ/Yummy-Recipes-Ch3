@@ -2,6 +2,7 @@ import unittest
 import os
 import json
 from app import create_app, db
+from app.models import User
 
 class AuthTestCase(unittest.TestCase):
     """Test case for the auth blueprint
@@ -10,12 +11,13 @@ class AuthTestCase(unittest.TestCase):
         """Define test variables and initialize app."""
         self.app = create_app(config_name="testing")
         self.client = self.app.test_client
+        # this user has already been created in the db
         self.user = {
-            'first_name' : 'Tester',
-            'last_name' : 'Api',
-            'username' : 'apitester',
-            'email' : 'tester@api.com',
-            'password' : 'abc'
+            'first_name' : 'Harith',
+            'last_name' : 'Bakhrani',
+            'username' : 'harithj',
+            'email' : 'harithjaved@gmail.com',
+            'password' : 'password'
         }
 
         # binds the app to the current context
@@ -24,16 +26,28 @@ class AuthTestCase(unittest.TestCase):
             db.session.close()
             db.drop_all()
             db.create_all()
+            # Create a user in the db
+            user = User(email = 'harithjaved@gmail.com',
+                        username = 'harithj',
+                        first_name = 'Harith',
+                        last_name = 'Bakhrani',
+                        password = 'password')
+            db.session.add(user)
+            db.session.commit()
 
     def test_user_can_register_successfully(self):
-        res = self.client().post('/api/v1.0/register', data=json.dumps(self.user), content_type='application/json')
+        user = {
+            'first_name' : 'Tester',
+            'last_name' : 'Api',
+            'username' : 'apitester',
+            'email' : 'tester@api.com',
+            'password' : 'abc'
+        }
+        res = self.client().post('/api/v1.0/register', data=json.dumps(user), content_type='application/json')
 
         self.assertIn('user created successfully', str(res.data))
 
     def test_user_can_login_successfully(self):
-        reg_res = self.client().post('/api/v1.0/register', data=json.dumps(self.user), content_type='application/json')
-        self.assertEqual(reg_res.status_code, 201)
-
         login_res = self.client().post('/api/v1.0/login', data=json.dumps(self.user), content_type='application/json')
 
         # get the results in json format
@@ -45,14 +59,12 @@ class AuthTestCase(unittest.TestCase):
         self.assertTrue(result['access_token'])
 
     def test_already_registered_user_cannot_register_again(self):
-        res = self.client().post('/api/v1.0/register', data=json.dumps(self.user), content_type='application/json')
-        self.assertEqual(res.status_code, 201)
         second_res = self.client().post('/api/v1.0/register', data=json.dumps(self.user), content_type='application/json')
         self.assertEqual(second_res.status_code, 409)
 
         # get the results returned in json format
         result = json.loads(second_res.data.decode())
-        self.assertEqual(result['message'], "User already exists. Please login.")
+        self.assertEqual(result['message'], "The username has already been taken, please choose another username.")
 
     def test_non_registered_user_cannot_login(self):
         """Test non registered users cannot login."""

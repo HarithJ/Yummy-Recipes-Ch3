@@ -389,7 +389,7 @@ class RecipesGetOrAdd(Resource):
         #set the limit if it has been provided by the user
         lim = request.args.get('limit', None)
         #set the offset if the user provided
-        page = request.args.get('page', 0)
+        page = request.args.get('page', 1)
         # set the title if search query was provided
         title = request.args.get('q', None)
 

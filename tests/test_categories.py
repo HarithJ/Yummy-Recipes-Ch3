@@ -68,8 +68,8 @@ class CategoryTestCase(BaseTestCase):
         result = json.loads(category_get_response.data)['categories']
         self.assertEquals(len(result), 3)
 
-    def test_get_categories_starting_with_certain_category_successfully(self):
-        """Test GET request on category with offset parameter"""
+    def test_get_limited_categories_starting_with_specific_page_successfully(self):
+        """Test GET request on category with page and limit parameter"""
         # get the token and context
         token_and_context = self.get_token()
         token = token_and_context['token']
@@ -79,39 +79,18 @@ class CategoryTestCase(BaseTestCase):
         self.create_category(token=token, context=context, cat_num=5)
 
         # get 3 categories by going to that link in the app using login context and limit parameter
-        category_get_response = context.get(self.url + 'category?offset=2', headers=dict(Authorization="Bearer " + token))
+        category_get_response = context.get(self.url + 'category?limit=2&page=2', headers=dict(Authorization="Bearer " + token))
         self.assertEquals(category_get_response.status_code, 200)
 
-        #check that 3 categories are returned,
-        #and the first one is "category3", because the offset is set to 2
-        result = json.loads(category_get_response.data)['categories']
-        self.assertEquals(len(result), 3)
-        first_category = result[0]
-        self.assertEquals(first_category['Name'], 'category3')
-
-    def test_get_limited_categories_starting_with_specific_category_successfully(self):
-        """Test GET request on category with offset and limit parameter"""
-        # get the token and context
-        token_and_context = self.get_token()
-        token = token_and_context['token']
-        context = token_and_context['context']
-
-        # Create 5 categories using create_category method, named category1 to category5
-        self.create_category(token=token, context=context, cat_num=5)
-
-        # get 3 categories by going to that link in the app using login context and limit parameter
-        category_get_response = context.get(self.url + 'category?limit=2&offset=1', headers=dict(Authorization="Bearer " + token))
-        self.assertEquals(category_get_response.status_code, 200)
-
-        #check that 2 categories are returned; because the limit is set to 2
-        # and the first category is "category2", because the offset is set to 1
+        # check that 2 categories are returned; because the limit is set to 2
+        # and the first category is "category3", because the page is set to 2
         result = json.loads(category_get_response.data)['categories']
         self.assertEquals(len(result), 2)
         first_category = result[0]
-        self.assertEquals(first_category['Name'], 'category2')
+        self.assertEquals(first_category['Name'], 'category3')
 
     def test_get_a_searched_category_successfully(self):
-        """Test GET request on category with offset and limit parameter"""
+        """Test GET request on category with search query"""
         # get the token and context
         token_and_context = self.get_token()
         token = token_and_context['token']

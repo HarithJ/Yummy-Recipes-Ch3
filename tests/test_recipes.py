@@ -133,32 +133,7 @@ class RecipeTestCase(BaseTestCase):
         recipes = json.loads(response.data)['category1 - recipes']
         self.assertEqual(len(recipes), 3)
 
-    def test_get_all_recipes_starting_with_specific_recipe(self):
-        """Test GET method on recipes with offset parameter"""
-        # get the token and context
-        token_and_context = self.get_token()
-        token = token_and_context['token']
-        context = token_and_context['context']
-
-        # Create 5 categories using create_category method, named category1 to category5
-        self.create_category(token=token, context=context, cat_num=5)
-
-        # create 5 recipes in category id 1;
-        # the helper function creates recipes in category id 1, if the arg is not provided
-        self.create_recipe(token, context, rec_num=5)
-
-        # call the link to get the response
-        response = context.get(self.url + 'category/1/recipe?offset=3', headers=dict(Authorization="Bearer " + token))
-        self.assertEquals(response.status_code, 200)
-
-        # Extract recipes from the response and:
-        # check number of recipes, it should be 2
-        # check that the id of first recipe is 4
-        recipes = json.loads(response.data)['category1 - recipes']
-        self.assertEqual(len(recipes), 2)
-        self.assertEquals(recipes[0]['id'], 4)
-
-    def test_get_limited_recipes_starting_with_a_specific_recipe(self):
+    def test_get_limited_recipes_on_a_specific_page(self):
         """Test getting limited recipes starting off with a specific recipe"""
         # get the token and context
         token_and_context = self.get_token()
@@ -173,15 +148,15 @@ class RecipeTestCase(BaseTestCase):
         self.create_recipe(token, context, rec_num=5)
 
         # call the link to get the response
-        response = context.get(self.url + 'category/1/recipe?limit=1&offset=3', headers=dict(Authorization="Bearer " + token))
+        response = context.get(self.url + 'category/1/recipe?limit=1&page=3', headers=dict(Authorization="Bearer " + token))
         self.assertEquals(response.status_code, 200)
 
         # Extract recipes from the response and:
         # check number of recipes, it should be 1
-        # check that the id of recipe is 4
+        # check that the id of recipe is 3
         recipes = json.loads(response.data)['category1 - recipes']
         self.assertEqual(len(recipes), 1)
-        self.assertEquals(recipes[0]['id'], 4)
+        self.assertEquals(recipes[0]['id'], 3)
 
     def test_search_recipes_using_recipe_title_successfully(self):
         """Test that the API can search through the recipes by recipe title,
