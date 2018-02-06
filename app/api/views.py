@@ -263,8 +263,9 @@ class CategoriesAddOrGet(Resource):
         validate_data(data)
 
         if data['name']:
+            category_name = data['name'].title()
             try:
-                category = Category(name = data['name'], user_id = user_id)
+                category = Category(name = category_name, user_id = user_id)
 
                 db.session.add(category)
                 db.session.commit()
@@ -450,7 +451,8 @@ class RecipesGetOrAdd(Resource):
 
             ingredient_num += 1
 
-        category.add_recipe(data['title'], ingredients, data['directions'], 'noImage')
+        recipe_title = data['title'].title()
+        category.add_recipe(recipe_title, ingredients, data['directions'], 'noImage')
 
         return {'message' : 'recipe added successfully'}, 201
 
