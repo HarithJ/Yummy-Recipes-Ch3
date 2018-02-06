@@ -56,6 +56,11 @@ pagination_args.add_argument(
 pagination_args.add_argument(
     'page', type=int, help='Number of page', location='query')
 
+# Namespaces
+auth_ns = api.namespace('Authentication', description='Authentication operations')
+category_ns = api.namespace('Categories', description='Category operations')
+recipe_ns = api.namespace('Recipes', description='Recipe operations')
+
 def token_required(f):
     def wrapper(*args, **kwargs):
         # Get the access token from the header
@@ -126,7 +131,7 @@ def send_email(subject, sender, recipients, text_body, html_body):
     msg.html = html_body
     mail.send(msg)
 
-@api.route('/register')
+@auth_ns.route('/register')
 class Register(Resource):
     @api.expect(user_registration_format)
     def post(self):
@@ -156,7 +161,7 @@ class Register(Resource):
         return {'message' : 'user created successfully'}, 201
 
 
-@api.route('/login')
+@auth_ns.route('/login')
 class Login(Resource):
     @api.expect(user_basic_format)
     def post(self):
@@ -184,7 +189,7 @@ class Login(Resource):
         abort(401, 'Invalid email or password, Please try again')
 
 
-@api.route('/logout')
+@auth_ns.route('/logout')
 class Logout(Resource):
     def get(self):
         logout_user()
@@ -193,7 +198,7 @@ class Logout(Resource):
 
         return {'message' : 'You have successfully logged out.'}
 
-@api.route('/set-new-password', methods=['POST'])
+@auth_ns.route('/set-new-password', methods=['POST'])
 class set_new_password(Resource):
     @api.expect(new_password_format)
     def post(self):
@@ -215,7 +220,7 @@ class set_new_password(Resource):
 
             return {'message' : 'Your new password has been set!'}
 
-@api.route('/reset-password', methods=['POST'])
+@auth_ns.route('/reset-password', methods=['POST'])
 class ResetPassword(Resource):
     @api.expect(resetpassword_format)
     def post(self):
@@ -243,7 +248,7 @@ class ResetPassword(Resource):
 
         return {'message' : 'Instructions sent to your inbox.'}
 
-@api.route('/category')
+@category_ns.route('/category')
 class CategoriesAddOrGet(Resource):
     @api.doc(security='apikey')
     @api.expect(category_format)
@@ -313,7 +318,7 @@ class CategoriesAddOrGet(Resource):
         return {'categories' : output}
 
 
-@api.route('/category/<category_id>')
+@category_ns.route('/category/<category_id>')
 class CategoryFunctions(Resource):
     @api.doc(security='apikey')
     @token_required
@@ -369,7 +374,7 @@ class CategoryFunctions(Resource):
 
         return {'message' : 'Category ' + category_name + ' deleted successfully'}
 
-@api.route('/category/<category_id>/recipe')
+@recipe_ns.route('/category/<category_id>/recipe')
 class RecipesGetOrAdd(Resource):
     @api.doc(security='apikey')
     @api.expect(pagination_args)
@@ -449,7 +454,7 @@ class RecipesGetOrAdd(Resource):
 
         return {'message' : 'recipe added successfully'}, 201
 
-@api.route('/category/<category_id>/recipe/<recipe_id>')
+@recipe_ns.route('/category/<category_id>/recipe/<recipe_id>')
 class RecipeFunctions(Resource):
     @api.doc(security='apikey')
     @token_required
