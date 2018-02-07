@@ -43,7 +43,7 @@ class CategoryTestCase(BaseTestCase):
         self.create_category(token=token, context=context, cat_num=cat_num)
 
         # get all categories by going to that link in the app using login context
-        category_get_response = context.get(self.url + 'category', headers=dict(Authorization="Bearer " + token))
+        category_get_response = context.get(self.category_url + 'category', headers=dict(Authorization="Bearer " + token))
         self.assertEquals(category_get_response.status_code, 200)
 
         result = json.loads(category_get_response.data)
@@ -62,7 +62,7 @@ class CategoryTestCase(BaseTestCase):
         self.create_category(token=token, context=context, cat_num=5)
 
         # get 3 categories by going to that link in the app using login context and limit parameter
-        category_get_response = context.get(self.url + 'category?limit=3', headers=dict(Authorization="Bearer " + token))
+        category_get_response = context.get(self.category_url + 'category?limit=3', headers=dict(Authorization="Bearer " + token))
         self.assertEquals(category_get_response.status_code, 200)
 
         result = json.loads(category_get_response.data)['categories']
@@ -79,7 +79,7 @@ class CategoryTestCase(BaseTestCase):
         self.create_category(token=token, context=context, cat_num=5)
 
         # get 3 categories by going to that link in the app using login context and limit parameter
-        category_get_response = context.get(self.url + 'category?limit=2&page=2', headers=dict(Authorization="Bearer " + token))
+        category_get_response = context.get(self.category_url + 'category?limit=2&page=2', headers=dict(Authorization="Bearer " + token))
         self.assertEquals(category_get_response.status_code, 200)
 
         # check that 2 categories are returned; because the limit is set to 2
@@ -87,7 +87,7 @@ class CategoryTestCase(BaseTestCase):
         result = json.loads(category_get_response.data)['categories']
         self.assertEquals(len(result), 2)
         first_category = result[0]
-        self.assertEquals(first_category['Name'], 'category3')
+        self.assertEquals(first_category['Name'], 'Category3')
 
     def test_get_a_searched_category_successfully(self):
         """Test GET request on category with search query"""
@@ -100,13 +100,13 @@ class CategoryTestCase(BaseTestCase):
         self.create_category(token=token, context=context, cat_num=5)
 
         # get 3 categories by going to that link in the app using login context and limit parameter
-        category_get_response = context.get(self.url + 'category?q=category3', headers=dict(Authorization="Bearer " + token))
+        category_get_response = context.get(self.category_url + 'category?q=category3', headers=dict(Authorization="Bearer " + token))
         self.assertEquals(category_get_response.status_code, 200)
 
         #check that category with name category3 is in the list
         result = json.loads(category_get_response.data)['categories']
         first_category = result[0]
-        self.assertEquals(first_category['Name'], 'category3')
+        self.assertEquals(first_category['Name'], 'Category3')
 
     def test_get_one_category_successfully(self):
         """Test GET verb on category by category's id"""
@@ -119,7 +119,7 @@ class CategoryTestCase(BaseTestCase):
         self.create_category(token=token, context=context, cat_num=5)
 
         #visit the url using id of 3
-        response = context.get(self.url + 'category/3', headers=dict(Authorization="Bearer " + token))
+        response = context.get(self.category_url + 'category/3', headers=dict(Authorization="Bearer " + token))
         self.assertEquals(response.status_code, 200)
 
         #check that category with id 3 is in the list
@@ -137,11 +137,11 @@ class CategoryTestCase(BaseTestCase):
         self.create_category(token=token, context=context, cat_num=5)
 
         #visit the url using id of 2
-        response = context.put(self.url + 'category/2', headers=dict(Authorization="Bearer " + token), data=json.dumps({'name' : 'awesome'}), content_type='application/json')
+        response = context.put(self.category_url + 'category/2', headers=dict(Authorization="Bearer " + token), data=json.dumps({'name' : 'awesome'}), content_type='application/json')
         self.assertEquals(response.status_code, 200)
 
         #get category of id 2 and check that it has a changed name; 'awesome'
-        response = context.get(self.url + 'category/2', headers=dict(Authorization="Bearer " + token))
+        response = context.get(self.category_url + 'category/2', headers=dict(Authorization="Bearer " + token))
         self.assertEquals(response.status_code, 200)
         result = json.loads(response.data)['category']
         self.assertEquals(result['Name'], 'awesome')
@@ -157,9 +157,9 @@ class CategoryTestCase(BaseTestCase):
         self.create_category(token=token, context=context, cat_num=5)
 
         #visit the delete url using id of 4
-        response = context.delete(self.url + 'category/4', headers=dict(Authorization="Bearer " + token))
+        response = context.delete(self.category_url + 'category/4', headers=dict(Authorization="Bearer " + token))
         self.assertEquals(response.status_code, 200)
 
         #try getting the category and confirm that it does not exist
-        response = context.get(self.url + 'category?q=category4', headers=dict(Authorization="Bearer " + token))
+        response = context.get(self.category_url + 'category?q=category4', headers=dict(Authorization="Bearer " + token))
         self.assertEquals(response.status_code, 404)

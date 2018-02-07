@@ -57,9 +57,9 @@ pagination_args.add_argument(
     'page', type=int, help='Number of page', location='query')
 
 # Namespaces
-auth_ns = api.namespace('Authentication', description='Authentication operations')
-category_ns = api.namespace('Categories', description='Category operations')
-recipe_ns = api.namespace('Recipes', description='Recipe operations')
+auth_ns = api.namespace('auth', description='Authentication operations')
+category_ns = api.namespace('categories', description='Category operations')
+recipe_ns = api.namespace('recipes', description='Recipe operations')
 
 def token_required(f):
     def wrapper(*args, **kwargs):
@@ -73,7 +73,7 @@ def token_required(f):
             abort(400, "Make sure you have the word 'Bearer' before the token: 'Bearer TOKEN'")
 
         if access_token:
-            if current_user.token == "":
+            if current_user.is_anonymous:
                 abort(401, 'Please login to get a valid token.')
             # Attempt to decode the token and get the User ID
             user_id = User.decode_token(access_token)
@@ -192,9 +192,9 @@ class Login(Resource):
 @auth_ns.route('/logout')
 class Logout(Resource):
     def get(self):
-        logout_user()
         current_user.token = ""
         db.session.commit()
+        logout_user()
 
         return {'message' : 'You have successfully logged out.'}
 
@@ -295,11 +295,17 @@ class CategoriesAddOrGet(Resource):
         name = request.args.get('q', None)
 
         if name and lim:
-            categories = Category.query.filter_by(user_id=user_id).search(name).paginate(int(page), int(lim), False).items
+            try:
+                categories = Category.query.filter_by(user_id=user_id).search(name).paginate(int(page), int(lim), False).items
+            except ValueError:
+                abort(422, "Please make sure you provided a number for limit/page parameter.")
         elif name:
             categories = Category.query.filter_by(user_id=user_id).search(name).all()
         elif lim:
-             categories = Category.query.filter_by(user_id=user_id).paginate(int(page), int(lim), False).items
+            try:
+                categories = Category.query.filter_by(user_id=user_id).paginate(int(page), int(lim), False).items
+            except ValueError:
+                abort(422, "Please make sure you provided a whole number for limit/page parameter.")
         else:
             categories = Category.query.filter_by(user_id=user_id).all()
 
@@ -396,11 +402,17 @@ class RecipesGetOrAdd(Resource):
         title = request.args.get('q', None)
 
         if title and lim:
-            recipes = Recipe.query.filter_by(category_id=category_id).search(title).paginate(int(page), int(lim), False).items
+            try:
+                recipes = Recipe.query.filter_by(category_id=category_id).search(title).paginate(int(page), int(lim), False).items
+            except ValueError:
+                abort(422, "Please make sure you provided a whole number for limit/page parameter.")
         elif title:
             recipes = Recipe.query.filter_by(category_id=category_id).search(title).all()
         elif lim:
-            recipes = Recipe.query.filter_by(category_id=category_id).paginate(int(page), int(lim), False).items
+            try:
+                recipes = Recipe.query.filter_by(category_id=category_id).paginate(int(page), int(lim), False).items
+            except ValueError:
+                abort(422, "Please make sure you provided a whole number for limit/page parameter.")
         else:
             recipes = category.category_recipes
 

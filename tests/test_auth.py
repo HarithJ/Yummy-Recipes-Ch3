@@ -19,6 +19,7 @@ class AuthTestCase(unittest.TestCase):
             'email' : 'harithjaved@gmail.com',
             'password' : 'password'
         }
+        self.url = '/api/v1.0/auth/'
 
         # binds the app to the current context
         with self.app.app_context():
@@ -41,14 +42,14 @@ class AuthTestCase(unittest.TestCase):
             'last_name' : 'Api',
             'username' : 'apitester',
             'email' : 'tester@api.com',
-            'password' : 'abc'
+            'password' : 'abc123456'
         }
-        res = self.client().post('/api/v1.0/register', data=json.dumps(user), content_type='application/json')
+        res = self.client().post(self.url + 'register', data=json.dumps(user), content_type='application/json')
 
         self.assertIn('user created successfully', str(res.data))
 
     def test_user_can_login_successfully(self):
-        login_res = self.client().post('/api/v1.0/login', data=json.dumps(self.user), content_type='application/json')
+        login_res = self.client().post(self.url + 'login', data=json.dumps(self.user), content_type='application/json')
 
         # get the results in json format
         result = json.loads(login_res.data.decode())
@@ -59,7 +60,7 @@ class AuthTestCase(unittest.TestCase):
         self.assertTrue(result['access_token'])
 
     def test_already_registered_user_cannot_register_again(self):
-        second_res = self.client().post('/api/v1.0/register', data=json.dumps(self.user), content_type='application/json')
+        second_res = self.client().post(self.url + 'register', data=json.dumps(self.user), content_type='application/json')
         self.assertEqual(second_res.status_code, 409)
 
         # get the results returned in json format
@@ -71,10 +72,10 @@ class AuthTestCase(unittest.TestCase):
         # define a dictionary to represent an unregistered user
         not_a_user = {
             'email': 'not_a_user@example.com',
-            'password': 'nope'
+            'password': 'nopassword'
         }
         # send a POST request to /auth/login with the data above
-        res = self.client().post('/api/v1.0/login', data=json.dumps(not_a_user), content_type='application/json')
+        res = self.client().post(self.url + 'login', data=json.dumps(not_a_user), content_type='application/json')
         # get the result in json
         result = json.loads(res.data.decode())
 

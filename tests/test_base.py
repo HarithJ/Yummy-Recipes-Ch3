@@ -17,9 +17,11 @@ class BaseTestCase(unittest.TestCase):
         db.session.close()
         db.drop_all()
         db.create_all()
-        self.url = '/api/v1.0/'
+        self.auth_url = '/api/v1.0/auth/'
+        self.category_url = '/api/v1.0/categories/'
+        self.recipe_url = '/api/v1.0/recipes/'
 
-    def register_user(self, first_name='Tester', last_name='Api', username='apitester', email='tester@api.com', password='abc'):
+    def register_user(self, first_name='Tester', last_name='Api', username='apitester', email='tester@api.com', password='password'):
         """This helper method helps register a test user"""
         user_data = {
             'first_name' : first_name,
@@ -29,9 +31,9 @@ class BaseTestCase(unittest.TestCase):
             'password' : password
         }
 
-        return self.client().post(self.url + 'register', data=json.dumps(user_data), content_type='application/json')
+        return self.client().post(self.auth_url + 'register', data=json.dumps(user_data), content_type='application/json')
 
-    def login_user(self, email='tester@api.com', password='abc'):
+    def login_user(self, email='tester@api.com', password='password'):
         """This helper method helps log in a test user in a specific context.
         It returns a dictionary that consists of the login result and the context it self.
         """
@@ -42,7 +44,7 @@ class BaseTestCase(unittest.TestCase):
 
         with self.client() as c:
             return {
-                'login_response' : c.post(self.url + 'login', data=json.dumps(user_data), content_type='application/json'),
+                'login_response' : c.post(self.auth_url + 'login', data=json.dumps(user_data), content_type='application/json'),
                 'context' : c
                 }
 
@@ -76,7 +78,7 @@ class BaseTestCase(unittest.TestCase):
             category_data = {'name' : name}
 
             # Create a category by going to that link in the app using the context given
-            return context.post(self.url + 'category', headers=dict(Authorization="Bearer " + token), data=json.dumps(category_data), content_type='application/json')
+            return context.post(self.category_url + 'category', headers=dict(Authorization="Bearer " + token), data=json.dumps(category_data), content_type='application/json')
         else:
             # Create cat_num of categories using create_category method, named category1 to category{i}
             i = 1
