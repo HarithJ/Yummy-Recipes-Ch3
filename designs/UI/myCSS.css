@@ -26,3 +26,8 @@
 .header-img2 img {
     margin-left: 100px;
 }
+
+.no-image{
+    border: 1px solid;
+    height: 200px;
+}

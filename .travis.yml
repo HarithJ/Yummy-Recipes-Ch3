@@ -2,9 +2,20 @@ language: python
 python:
     - 3.6
 
+services:
+  - postgresql
+
+
+before_script:
+  - psql -c "CREATE DATABASE testdb;" -U postgres
+  - psql -c "CREATE USER testuser WITH PASSWORD 'abc123';" -U postgres
+
+#set environment variables
+env:
+    - APP_SETTINGS=production
+
 # command to run tests
 script:
-    - nosetests
-    - nosetests --exe --with-coverage --cover-package=test.test_webapp
-    - coveralls
+    - nosetests --with-coverage --cover-package=app
+
 after_success: "coveralls"
