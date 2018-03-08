@@ -144,7 +144,7 @@ class CategoryTestCase(BaseTestCase):
         response = context.get(self.category_url + 'category/2', headers=dict(Authorization="Bearer " + token))
         self.assertEquals(response.status_code, 200)
         result = json.loads(response.data)['category']
-        self.assertEquals(result['Name'], 'awesome')
+        self.assertEquals(result['Name'], 'Awesome')
 
     def test_deleting_a_category_successfully(self):
         """Test delete verb on category by category's id"""

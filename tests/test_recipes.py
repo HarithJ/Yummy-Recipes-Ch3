@@ -221,7 +221,7 @@ class RecipeTestCase(BaseTestCase):
         self.create_recipe(token, context, rec_num=5)
 
         # call the link to make the change and get the response
-        new_title = 'title changed'
+        new_title = 'Title Changed'
         new_ingredient = 'ingredient2 changed'
         new_directions = 'directions changed'
         form = {

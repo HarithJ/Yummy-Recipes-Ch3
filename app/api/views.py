@@ -355,9 +355,10 @@ class CategoryFunctions(Resource):
 
         data = request.get_json()
         if data['name']:
+            new_category_name = data['name'].title()
             try:
                 prev_name = category.name
-                category.name = data['name']
+                category.name = new_category_name
                 db.session.commit()
 
             except IntegrityError:
@@ -512,6 +513,7 @@ class RecipeFunctions(Resource):
         if not category:
             return {'message' : 'category does not exists'},404
 
+        data['title'] = data['title'].title()
         return category.edit_recipe(data, id=recipe_id)
 
     @api.doc(security='apikey')
