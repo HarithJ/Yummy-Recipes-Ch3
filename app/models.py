@@ -1,5 +1,4 @@
 import os
-from flask_login import UserMixin, login_required, current_user
 from flask import flash, redirect, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
@@ -154,25 +153,8 @@ class Category(db.Model):
         db.session.delete(delete_this)
         db.session.commit()
 
-    def category_required(f):
-        """
-        First, check if a user is logged in or not,
-        if he is logged in, then check if he has selected a category or not,
-        if he has not selected a category then redirect him to categories page.
-        """
-        @login_required
-        @wraps(f)
-        def wrapper(*args, **kwargs):
-            if Globals.current_category == None:
-                flash("You must select a category first to view the recipes ;)")
-                return redirect(url_for('categories.categories_page'))
 
-            return f(*args, **kwargs)
-        return wrapper
-
-
-
-class User(UserMixin, db.Model):
+class User(db.Model):
     '''
     Create a user table
     '''

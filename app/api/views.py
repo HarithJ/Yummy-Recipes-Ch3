@@ -73,17 +73,19 @@ def token_required(f):
             abort(400, "Make sure you have the word 'Bearer' before the token: 'Bearer TOKEN'")
 
         if access_token:
-            if current_user.is_anonymous:
-                abort(401, 'Please login to get a valid token.')
             # Attempt to decode the token and get the User ID
             user_id = User.decode_token(access_token)
+
             if isinstance(user_id, str):
                 # user is not legit, so the payload is an error message
                 message = user_id
-                response = {
-                    'message': message
-                }
-                abort(401, response)
+                abort(401, message)
+
+            # check if the user has a token in his db,
+            # if token is NOT there than he is NOT logged in
+            user = User.query.filter_by(id=user_id).first()
+            if user.token == "":
+                abort(401, "Please login.");
 
             return f(*args, user_id=user_id, **kwargs)
 
@@ -173,9 +175,6 @@ class Login(Resource):
         user = User.query.filter_by(email=data['email']).first()
 
         if user is not None and user.verify_password(data['password']):
-
-            login_user(user)
-
             token = user.generate_token(user.id)
             user.token = token
             db.session.commit()
@@ -191,10 +190,14 @@ class Login(Resource):
 
 @auth_ns.route('/logout')
 class Logout(Resource):
-    def get(self):
-        current_user.token = ""
+    @token_required
+    def get(self, **kwargs):
+        user_id = kwargs.get('user_id')
+
+        # set the token in user's db to empty string
+        user = User.query.filter_by(id=user_id).first()
+        user.token = ""
         db.session.commit()
-        logout_user()
 
         return {'message' : 'You have successfully logged out.'}
 
@@ -255,6 +258,8 @@ class CategoriesAddOrGet(Resource):
     @token_required
     def post(self, **kwargs):
         user_id = kwargs.get('user_id')
+
+        current_user = User.query.filter_by(id=user_id).first()
 
         # Go ahead and handle the request, the user is authenticated
         data = request.get_json()
@@ -428,9 +433,10 @@ class RecipesGetOrAdd(Resource):
             recipe_data['id'] = recipe.id
             recipe_data['title'] = recipe.title
 
+            recipe_data['ingredients'] = {}
             ing_num = 1
             for ingredient in recipe.recipe_ingredients:
-                recipe_data['ingredient{}'.format(ing_num)] = ingredient.ing
+                recipe_data['ingredients']['ingredient{}'.format(ing_num)] = ingredient.ing
                 ing_num += 1
 
             recipe_data['directions'] = recipe.directions
