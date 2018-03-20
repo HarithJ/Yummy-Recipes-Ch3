@@ -105,7 +105,7 @@ def validation(string, email=False, password=False):
         return password_regex.match(string)
 
     else:
-        text_regex = re.compile(r'^[A-Za-z1-9 ]+$')
+        text_regex = re.compile(r'^[A-Za-z1-9,. ]+$')
         return text_regex.match(string)
 
 def validate_data(data, *args):
@@ -181,6 +181,7 @@ class Login(Resource):
 
             response = {
                 'message': 'You logged in successfully.',
+                'user': user.first_name + ' ' + user.last_name,
                 'access_token': token.decode()
             }
             return response
@@ -312,7 +313,7 @@ class CategoriesAddOrGet(Resource):
             except ValueError:
                 abort(422, "Please make sure you provided a whole number for limit/page parameter.")
         else:
-            categories = Category.query.filter_by(user_id=user_id).all()
+            categories = Category.query.filter_by(user_id=user_id).order_by(Category.id.desc()).all()
 
         if name and not categories:
             return {'message' : 'Not found'}, 404
@@ -409,14 +410,14 @@ class RecipesGetOrAdd(Resource):
 
         if title and lim:
             try:
-                recipes = Recipe.query.filter_by(category_id=category_id).search(title).paginate(int(page), int(lim), False).items
+                recipes = Recipe.query.filter_by(category_id=category_id).order_by(Recipe.id.desc()).search(title).paginate(int(page), int(lim), False).items
             except ValueError:
                 abort(422, "Please make sure you provided a whole number for limit/page parameter.")
         elif title:
-            recipes = Recipe.query.filter_by(category_id=category_id).search(title).all()
+            recipes = Recipe.query.filter_by(category_id=category_id).order_by(Recipe.id.desc()).search(title).all()
         elif lim:
             try:
-                recipes = Recipe.query.filter_by(category_id=category_id).paginate(int(page), int(lim), False).items
+                recipes = Recipe.query.filter_by(category_id=category_id).order_by(Recipe.id.desc()).paginate(int(page), int(lim), False).items
             except ValueError:
                 abort(422, "Please make sure you provided a whole number for limit/page parameter.")
         else:
@@ -433,10 +434,10 @@ class RecipesGetOrAdd(Resource):
             recipe_data['id'] = recipe.id
             recipe_data['title'] = recipe.title
 
-            recipe_data['ingredients'] = {}
+            recipe_data['ingredients'] = []
             ing_num = 1
             for ingredient in recipe.recipe_ingredients:
-                recipe_data['ingredients']['ingredient{}'.format(ing_num)] = ingredient.ing
+                recipe_data['ingredients'].append(ingredient.ing)
                 ing_num += 1
 
             recipe_data['directions'] = recipe.directions
@@ -514,12 +515,16 @@ class RecipeFunctions(Resource):
 
         data = request.get_json()
 
+        # Validate data
+        validate_data(data)
+
         category = Category.query.filter_by(user_id=user_id).filter_by(id=category_id).first()
 
         if not category:
             return {'message' : 'category does not exists'},404
 
-        data['title'] = data['title'].title()
+        if 'title' in data:
+            data['title'] = data['title'].title()
         return category.edit_recipe(data, id=recipe_id)
 
     @api.doc(security='apikey')

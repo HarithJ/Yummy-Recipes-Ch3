@@ -5,6 +5,7 @@ from flask_login import LoginManager, login_required
 from flask_migrate import Migrate
 from flask_restplus import Api
 from flask_mail import Mail
+from flask_cors import CORS
 
 import re
 
@@ -28,6 +29,8 @@ def create_app(config_name):
 
     app.config.from_object(app_config[config_name])
     app.config.from_pyfile('config.py')
+
+    CORS(app)
 
     db.init_app(app)
 

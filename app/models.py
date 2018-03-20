@@ -68,7 +68,7 @@ class Category(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))
-    category_recipes = db.relationship('Recipe', backref='recipe', lazy='dynamic', cascade="all, delete-orphan")
+    category_recipes = db.relationship('Recipe', order_by="desc(Recipe.id)", backref='recipe', lazy='dynamic', cascade="all, delete-orphan")
 
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
 
@@ -119,15 +119,18 @@ class Category(db.Model):
                 edit_this.filename = data['filename']
                 data.pop('filename')
 
-            if data:
-                ing_num = 1
-                for ingredient in edit_this.recipe_ingredients:
-                    ing = 'ingredient{}'.format(ing_num)
-                    if ing in data:
-                        ingredient.ing = data[ing]
-                        data.pop(ing)
-                        db.session.commit()
-                    ing_num += 1
+            new_ingredients = []
+
+            for ing_name, ingredient in data.items():
+                new_ingredient = Ingredient(ing=ingredient)
+                db.session.add(new_ingredient)
+
+                new_ingredients.append(new_ingredient)
+
+            edit_this.recipe_ingredients = new_ingredients
+
+            db.session.commit()
+
 
         except IntegrityError:
                 db.session.rollback()
